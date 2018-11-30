@@ -1,4 +1,0 @@
-sceneSetups:
-- path: Assets/FPSHangar/Scene/Hangar.unity
-  isLoaded: 1
-  isActive: 1
