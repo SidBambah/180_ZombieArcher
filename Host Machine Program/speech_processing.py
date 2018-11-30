@@ -33,7 +33,6 @@ global speechValue
 speechValue = "pause"
 
 def recognize():
-    global speechValue
     class PorcupineProcessor(Thread):
         """
         Class creates an input audio stream from a microphone,
@@ -72,6 +71,7 @@ def recognize():
 
 
         def run(self):
+            global speechValue
             """
              Creates an input audio stream, initializes wake word detection (Porcupine) object, and monitors the audio
              stream for occurrences of the wake word(s). It prints the time of detection for each occurrence and index of
@@ -107,7 +107,7 @@ def recognize():
                     input_device_index=self._input_device_index)
 
                 while True:
-                    pcm = audio_stream.read(porcupine.frame_length)
+                    pcm = audio_stream.read(porcupine.frame_length, exception_on_overflow = False)
                     pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
 
                     result = porcupine.process(pcm)
@@ -176,5 +176,3 @@ def recognize():
             sensitivities=sensitivities,
             input_device_index=args.input_audio_device_index).run()
             
-recognize()
-print speechValue
