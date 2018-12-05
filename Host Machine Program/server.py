@@ -78,12 +78,6 @@ def image_processing():
 	##Take camera data here
 	print("test")
 	
-def speech_recognition():
-	##Instantiate microphone and recognizer
-	##speech_processing.speech_initialize()
-	##Do speech recognition here
-	speech_processing.recognize()
-	
 def main():
 	##Create sockets
 	socket_create()
@@ -94,7 +88,7 @@ def main():
 	##Define threads
 	clientThread = threading.Thread(target = client_communicate)
 	unityThread = threading.Thread(target = unity_communicate)
-	speechRecognitionThread = threading.Thread(target = speech_recognition)
+	speechRecognitionThread = threading.Thread(target = speech_processing.recognize)
 	imageProcessingThread = threading.Thread(target = image_processing)
 	##Close threads when main thread ends
 	clientThread.daemon = True
