@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 public class PositionManipulate : MonoBehaviour {
     //Variable Definitions
-    private string HOST = "131.179.27.146"; //Must change this each time
+    private string HOST = "131.179.26.253"; //Must change this each time
     //private string HOST = "131.179.38.86"; //Must change this each time
     //private string HOST = "192.168.0.2"; //Must change this each time
     int PORT = 10002;
@@ -44,8 +44,8 @@ public class PositionManipulate : MonoBehaviour {
 		float smooth = 5.0f;
 		//float tiltAngle = 60.0f;
 		// Smoothly tilts a transform towards a target rotation.
-        float tiltAroundX = package["x-angle"].Value<float>();
-        float tiltAroundY = package["y-angle"].Value<float>();
+        float tiltAroundX = package["angle1"].Value<float>();
+        float tiltAroundY = package["angle2"].Value<float>();
         Quaternion target = Quaternion.Euler(tiltAroundX, tiltAroundY, 0);
 
         // Dampen towards the target rotation
