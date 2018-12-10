@@ -8,16 +8,26 @@ using System.Net.Sockets;
 using Newtonsoft.Json.Linq;
 
 public class PositionManipulate : MonoBehaviour {
+
+
+    public static bool moveBowValid = true;
+    public static bool isFired = false;
+    public static bool isPaused = false;
+    public static bool isStart = false;
+    public static float current_force;
+    public static int spawnQuadrant;
+    public static bool isValidQuadrant = false;
+
+
     //Variable Definitions
-    private string HOST = "131.179.27.146"; //Must change this each time
-    //private string HOST = "131.179.38.86"; //Must change this each time
-    //private string HOST = "192.168.0.2"; //Must change this each time
+    //private string HOST = "192.168.0.3"; //Must change this each time
+    private string HOST = "192.168.0.3"; //Must change this each time
+
     int PORT = 10002;
 	UdpClient unity_socket;
 	IPEndPoint ep;
 	private float previous_force = 0;
-	public float current_force = 0;
-	public bool isFired = false;
+	
 	
 	private void sendSignal(string signal) {
 		Byte[] message = Encoding.ASCII.GetBytes(signal);
@@ -42,10 +52,10 @@ public class PositionManipulate : MonoBehaviour {
 	
 	private void moveBow(JObject package) {
 		float smooth = 5.0f;
-		//float tiltAngle = 60.0f;
-		// Smoothly tilts a transform towards a target rotation.
-        float tiltAroundX = package["x-angle"].Value<float>();
-        float tiltAroundY = package["y-angle"].Value<float>();
+        //float tiltAngle = 60.0f;
+        // Smoothly tilts a transform towards a target rotation.
+        float tiltAroundX = package["angle1"].Value<float>();
+        float tiltAroundY = package["angle2"].Value<float>();
         Quaternion target = Quaternion.Euler(tiltAroundX, tiltAroundY, 0);
 
         // Dampen towards the target rotation
@@ -65,15 +75,25 @@ public class PositionManipulate : MonoBehaviour {
 	void Update () {
 		string responseAsString = getResponse();
 		JObject package = JObject.Parse(responseAsString);
-		moveBow(package);
+        if(moveBowValid)
+		    moveBow(package);
         Debug.Log(responseAsString);
 		float force = package["force"].Value<float>();
 		previous_force = current_force;
 		current_force = force;
 		if(current_force - previous_force < -0.5){
 			isFired = true;
-		}
+            Debug.Log("isFired: " + isFired);
+
+        }
+        if(package["speech"].Value<string>() == "pause"){
+            isPaused = true;
+        }
+        if (package["speech"].Value<string>() == "play")
+        {
+            isStart= true;
+        }
+        Debug.Log(isPaused);
         //Debug.Log("FORCE: " + force);
-        Debug.Log("isFired: " + isFired);
-	}
+    }
 }

@@ -28,7 +28,8 @@ def socket_create():
 
 	##Binding sensor data socket to IP address
 	#HOST = get_ip_address('enp0s3')
-        HOST = "192.168.0.3"
+        #HOST = "192.168.0.3"
+        HOST = "131.179.38.108"
 	SENSOR_DATA_PORT = 10000
 	SENSOR_DATA_ADDRESS = (HOST, SENSOR_DATA_PORT)
 	sensor_data_socket.bind(SENSOR_DATA_ADDRESS)

@@ -3352,6 +3352,7 @@ MonoBehaviour:
   currentHealth: 0
   scoreValue: 50
   positionTakenIndex: 0
+  zombieNeckHeight: 1.35
 --- !u!114 &114360918314239996
 MonoBehaviour:
   m_ObjectHideFlags: 1

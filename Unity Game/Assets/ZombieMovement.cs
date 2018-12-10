@@ -10,7 +10,7 @@ public class ZombieMovement : MonoBehaviour {
     Transform player;           // Get reference to player's position
     PlayerHealth playerHealth;  // Get player's health
     ZombieHealth zombieHealth;  // Get zombie's health
-    NavMeshAgent nav;           // Create agent for Unity AI
+    public NavMeshAgent nav;           // Create agent for Unity AI
 
 	// Use this for initialization
 	void Awake () {

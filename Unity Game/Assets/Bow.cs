@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//TODO: Change arrowSpeed based on value of force
 public class Bow : MonoBehaviour {
 
     // Variables
     public int arrowSpeed;
+
+    public static int arrowsShot = 0;
 
     private GameObject arrow;
     Camera cam;
@@ -37,12 +41,13 @@ public class Bow : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetButtonDown("Fire1") /* ||    */)
+        if (Input.GetButtonDown("Fire1") /*|| PositionManipulate.isFired*/)
         {
             SpawnArrow();
+            arrowsShot += 1;
 
             // Set boolean back to 0
-            positionManipulate.isFired = false;
+            //PositionManipulate.isFired = false;
         }
 	}
 }

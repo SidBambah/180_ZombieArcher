@@ -13,46 +13,39 @@ public class EnemyManager : MonoBehaviour {
     // Public variables
     public PlayerHealth playerHealth; // Reference to player's health
     public GameObject enemy;          // Reference to enemy to make duplicate of
-    public float spawnTime = 10f;      // How often to spawn enemies
     public Transform[] spawnPoints;   // Location to spawn enemies
 
-
     // Static variables
-    public static int numberZombies;        // Number of zombies in scene
+    public static int ZombiesLeft;
     public static bool[] positionTaken;   // Element is true if that position is taken by zombie
+    public static GameObject currentZombie; // reference to current zombie (Lazy way of doing it)
 
     // Private variables
-    private int spawnPointIndex;    //Indexes into spawnPoint array 
-    private int maxZombies = 3;
-
+    private int maxPositions = 7;
 
 	// Use this for initialization
 	void Start () {
-        // Calls Spawn function every spawnTime seconds 
-        // starting at time spawnTime
-        InvokeRepeating("Spawn", spawnTime, spawnTime);
 
-        // Initially, one zombie in scene
-        numberZombies = 0;
+        // 9 total zombies to kill in tutorial stage
+        ZombiesLeft = 14; 
 
         // For now, we will have 3 spawn points
-        positionTaken = new bool[maxZombies];
+        positionTaken = new bool[maxPositions];
 
         // Indicate that there are no zombies occupying positions
-        for (int k = 0; k < maxZombies; k++)
+        for (int k = 0; k < maxPositions; k++)
         {
             positionTaken[k] = false;
         }
-
-
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+	
 	}
 
-    void Spawn()
+    // Takes in location to spawn zombie and whether the zombie can move
+    public void Spawn(TutorialController.ZombieLocation loc, bool zombieMove)
     {
         // If the player is dead
         if (playerHealth.currentHealth <= 0f)
@@ -60,37 +53,50 @@ public class EnemyManager : MonoBehaviour {
             return;
         }
 
-        // If there are 3 zombies in the scene
-        if (numberZombies == maxZombies)
+        // If there is currently a zombie on the screen, do not spawn new zombie
+        for (int k = 0; k < maxPositions; k++)
         {
-            return;
-        }
-        //spawnPointIndex = Random.Range(0, spawnPoints.Length);
-
-        // Get random index to a spawn point where there is currently not a zombie
-        while (true)
-        {
-            spawnPointIndex = Random.Range(0, spawnPoints.Length);
-            if (positionTaken[spawnPointIndex] == false)
-            {
-                break;
-            }
+            if (positionTaken[(int)loc])
+                return;
         }
 
+        // Create gameobject for newZombie
         GameObject newZombie;
 
         // Instantiate zombie in spawnpoint
-        newZombie = Instantiate(enemy, spawnPoints[spawnPointIndex].position, spawnPoints[spawnPointIndex].rotation);
+        newZombie = Instantiate(enemy, spawnPoints[(int)loc].position, spawnPoints[(int)loc].rotation);
 
         // Give zombie its unique spawn point index
-        newZombie.GetComponent<ZombieHealth>().positionTakenIndex = spawnPointIndex;
+        newZombie.GetComponent<ZombieHealth>().positionTakenIndex = (int)loc;
 
         // Indicate the position is now occupied
-        positionTaken[spawnPointIndex] = true;
+        positionTaken[(int)loc] = true;
 
-        // Increment number of zombies in scene
-        numberZombies += 1;
+        if (zombieMove)
+        {
+            // Enable zombie to move
+            newZombie.GetComponent<ZombieMovement>().enabled = true;
+        }
+        // Keep reference of current zombie in the level
+        currentZombie = newZombie;
+
+
     }
 
+    // Destroys the current zombie and allows the TutorialController to go back to previous zombie
+    public void RespawnPrevious(TutorialController.ZombieLocation loc)
+    {
+        // Increment number of zombies left, implements respawning previous zombies
+        ZombiesLeft += 1;
 
+        //Mark this position as false in EnemyManager positionTaken array
+        positionTaken[(int)loc] = false;
+
+        // Destroy current zombie
+        Destroy(currentZombie, 0);
+
+        // Reset the number of arrows shot to 0
+        Bow.arrowsShot = 0;
+
+    }
 }
