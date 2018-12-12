@@ -6,7 +6,8 @@ import time
 import Queue
 import fcntl
 import struct
-#import speech_processing
+import speech_processing
+import camera_processing
 import json
 
 def get_ip_address(ifname):
@@ -27,8 +28,7 @@ def socket_create():
 	unity_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 	##Binding sensor data socket to IP address
-	#HOST = get_ip_address('enp0s3')
-        HOST = "192.168.0.3"
+	HOST = get_ip_address('enp0s3')
 	SENSOR_DATA_PORT = 10000
 	SENSOR_DATA_ADDRESS = (HOST, SENSOR_DATA_PORT)
 	sensor_data_socket.bind(SENSOR_DATA_ADDRESS)
@@ -47,7 +47,8 @@ def client_communicate():
 			##Convert JSON string to Python dictionary
 			data = json.loads(data)
 			##Add speech processing and image processing information
-			#data['speech'] = speech_processing.speechValue
+			data['speech'] = speech_processing.speechValue
+			data['quadrant'] = camera_processing.imageValue
 			##Convert back to python and send
 			data = json.dumps(data)
 			print (data) ##Print the data for debugging purposes
@@ -77,7 +78,7 @@ def unity_communicate():
 	
 def image_processing():
 	##Take camera data here
-	print("test")
+	camera_processing.recognize()
 	
 def speech_recognition():
 	##Instantiate microphone and recognizer
@@ -95,18 +96,18 @@ def main():
 	##Define threads
 	clientThread = threading.Thread(target = client_communicate)
 	unityThread = threading.Thread(target = unity_communicate)
-	#speechRecognitionThread = threading.Thread(target = speech_recognition)
-	#imageProcessingThread = threading.Thread(target = image_processing)
+	speechRecognitionThread = threading.Thread(target = speech_recognition)
+	imageProcessingThread = threading.Thread(target = image_processing)
 	##Close threads when main thread ends
 	clientThread.daemon = True
 	unityThread.daemon = True
-	#speechRecognitionThread.daemon = True
-	#imageProcessingThread.daemon = True
+	speechRecognitionThread.daemon = True
+	imageProcessingThread.daemon = True
 	##Start threads
 	clientThread.start()
 	unityThread.start()
-	#speechRecognitionThread.start()
-	#imageProcessingThread.start()
+	speechRecognitionThread.start()
+	imageProcessingThread.start()
 	##Keep main thread alive
 	while True:
 		time.sleep(0.01)
