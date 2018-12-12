@@ -28,7 +28,7 @@ public class GameOverManager : MonoBehaviour {
         {
 
             // Set GameOver trigger to transition to GameOver image
-            anim.SetTrigger("GameOver");
+            anim.SetTrigger("Stage3Complete");
 
             // Begin Timer
             restartTimer += Time.deltaTime;

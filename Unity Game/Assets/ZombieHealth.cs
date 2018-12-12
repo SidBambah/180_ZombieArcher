@@ -78,7 +78,7 @@ public class ZombieHealth : MonoBehaviour {
 
     }
 
-    void Death()
+    public void Death()
     {
 
         //TODO: Set zombie audio to deathclip
@@ -91,17 +91,16 @@ public class ZombieHealth : MonoBehaviour {
         GetComponent<NavMeshAgent>().enabled = false;
 
         // Decrement number of zombies from the scene
-        EnemyManager.numberZombies -= 1;
+        EnemyManager.ZombiesLeft -= 1;
 
         // Allow that position to be taken by a new zombie
         EnemyManager.positionTaken[positionTakenIndex] = false;
 
-        // Increment number of zombies killed 
-        GameOverManager.zombiesKilled += 1;
-
         // Remove zombie from game environment immediately i.e. t = 0
         Destroy(gameObject, 0);
 
+        // Reset arrows shot to 0
+        Bow.arrowsShot = 0;
         
 
 

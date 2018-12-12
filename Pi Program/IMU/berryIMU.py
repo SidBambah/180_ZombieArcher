@@ -320,7 +320,7 @@ def collect(sensor_socket, ADDRESS, signal):
         ############################ END ##################################
         
         #Package angles and force sensor data into JSON and output as string
-        package = {"angle1": CFangleX, "angle2": CFangleY, "angle3": tiltCompensatedHeading, "force": force_val}
+        package = {"angle1": CFangleX, "angle2": CFangleY, "angle3": round(tiltCompensatedHeading, 4), "force": force_val}
         package_string = json.dumps(package)
         #Send package over socket
         sensor_socket.sendto(package_string, ADDRESS)

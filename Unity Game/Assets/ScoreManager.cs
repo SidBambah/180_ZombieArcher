@@ -12,11 +12,11 @@ public class ScoreManager : MonoBehaviour {
     public static int score; // Holds the player's scores
 
     // Private variables
-    Text text; // Text to display in GUI
+    //Text text; // Text to display in GUI
 
 	// Use this for initialization
 	void Start () {
-        text = GetComponent<Text>(); // Get reference to text component
+        //text = GetComponent<Text>(); // Get reference to text component
         score = 0;  // Initialize score to 0
 	}
 	
@@ -24,6 +24,6 @@ public class ScoreManager : MonoBehaviour {
 	void Update () {
 
         // Display the score
-        text.text = "SCORE: " + score;
+        //text.text = "SCORE: " + score;
 	}
 }
