@@ -51,8 +51,8 @@ def recognize():
 			# (x,y) is the top left coordinate; w and h is width and height    
 			x, y, w, h = cv2.boundingRect(conts)
 			
-			# Drawing the bounding rectangle
-			res = cv2.rectangle(res,(x,y),(x+w,y+h),(0,255,0),3)
+			# Drawing the contours
+			cv2.drawContours(res, [conts], -1, (0, 255, 0), 2)
 			
 			# Check which quadrant
 			if y > cap.get(4)/2:
