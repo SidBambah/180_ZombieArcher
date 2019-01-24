@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 // Description: 
 // Decrements the zombies health when an arrow contacts the zombie
@@ -14,7 +15,9 @@ public class ZombieHealth : MonoBehaviour {
     public int currentHealth;               // Current health of zombie
     public int scoreValue = 50;             // Score increase for each zombie hit
     public int positionTakenIndex;          // Position index into EnemyManager's positionTaken array
-    public float zombieNeckHeight = 1.35f;  // Measured location of neck to determine head shots
+    public float zombieNeckHeight = 1.5f;   // Measured location of neck to determine head shots
+    public GameObject tutCont;      // Reference to the tutorial controller
+
     //public AudioClip deathClip;           // TODO: Sound zombie makes when dies
 
     // Private variables
@@ -29,11 +32,12 @@ public class ZombieHealth : MonoBehaviour {
         //hitParticles = GetComponentInChildren<ParticleSystem>(); // TODO: Find particle system
         //capsuleCollider = GetComponent<CapsuleCollider>();         // Get reference to capsule collider
         currentHealth = startingHealth;                            // Initialize current health
+        tutCont = GameObject.FindWithTag("GameController");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-
+        Debug.Log("ZOMBIE HEALTH: " + currentHealth);
 	}
 
     void OnTriggerEnter(Collider other)
@@ -41,18 +45,33 @@ public class ZombieHealth : MonoBehaviour {
         // If an arrow is in the capsule collider
         if (other.gameObject.tag == "Arrow")
         {
-            if (other.gameObject.transform.position.y > zombieNeckHeight)
-            {
-                // Headshot has occurred
-                ZombieTakeDamage(2 * damagePerShot);
-            }
-            else 
-            {
-                // Deal damage to zombie
-                ZombieTakeDamage(damagePerShot);
-            }
+            // Find out whether arrow has dealt damage
+            bool arrowhit = other.gameObject.GetComponent<ArrowHit>().arrowHit;
 
-            
+            // Deal damage if arrow has not dealt damage before
+            if (!arrowhit)
+            {
+                float yPos = other.gameObject.transform.position.y;
+                if (other.gameObject.transform.position.y > zombieNeckHeight)
+                {
+                    // Headshot has occurred
+                    ZombieTakeDamage(2 * damagePerShot);
+
+                    // Display hit text
+                    tutCont.GetComponent<TutorialController>().DisplayHit("Headshot!");
+                }
+                else
+                {
+                    // Deal damage to zombie
+                    ZombieTakeDamage(damagePerShot);
+
+                    // Display hit text
+                    tutCont.GetComponent<TutorialController>().DisplayHit("Body Hit!");
+                }
+                other.gameObject.GetComponent<ArrowHit>().arrowHit = true;
+
+               
+            }
         }
     }
 
@@ -87,6 +106,20 @@ public class ZombieHealth : MonoBehaviour {
         //TODO: Play zombie death audio
         //zombieAudio.Play();
 
+        // Stop zombie from moving
+        GetComponent<ZombieMovement>().enabled = false;
+
+        // Play death animation
+        GetComponent<Animator>().SetTrigger("Death");
+
+        Invoke("Helper", 2f);
+
+        
+
+
+    }
+    public void Helper()
+    {
         // Turn off mesh agent component to get zombie to stop following player
         GetComponent<NavMeshAgent>().enabled = false;
 
@@ -96,14 +129,14 @@ public class ZombieHealth : MonoBehaviour {
         // Allow that position to be taken by a new zombie
         EnemyManager.positionTaken[positionTakenIndex] = false;
 
-        // Remove zombie from game environment immediately i.e. t = 0
-        Destroy(gameObject, 0);
+        // Play death animation
+        GetComponent<Animator>().SetTrigger("Death");
+
+        // Remove zombie from game environment, allow time for animation
+        Destroy(gameObject, 0f);
 
         // Reset arrows shot to 0
         Bow.arrowsShot = 0;
-        
-
-
     }
 
 }

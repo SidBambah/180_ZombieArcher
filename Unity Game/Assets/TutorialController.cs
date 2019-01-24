@@ -21,13 +21,14 @@ public class TutorialController : MonoBehaviour
     public bool zombieMov = false;    // Indicates whether the zombie to be spawned can move
     public int maxShots = 5;          // Maximum shots a player can take before going back a stage
     public Text pauseText;
+    public Text hitText;                    // Displays "Hit!" when zombie is hit
 
     Transform player;
 
     // Private variables
     private enum State { GameStart, Stage1, Stage2, Stage3, Stage4, GameOver };  // Different states for tutorial 
     private float restartTimer;       // After game is over, time before scene is reloaded
-
+    
 
     // Use this for initialization
     void Start()
@@ -80,7 +81,7 @@ public class TutorialController : MonoBehaviour
     // Begins stage 1 when the return button is pressed or the user says "start"
     void GameStart()
     {
-        if (Input.GetKeyDown("return") || !PositionManipulate.isPaused)
+        if (Input.GetKeyDown("return") || !UDPInterface.isPaused)
         {
             // Cause transition in UI animator
             anim.SetTrigger("GameStart");
@@ -202,17 +203,17 @@ public class TutorialController : MonoBehaviour
     void Stage4()
     {
         zombieMov = true;
-        if (PositionManipulate.isValidQuadrant)
+        if (UDPInterface.isValidQuadrant)
         {
-            if (PositionManipulate.spawnQuadrant == 1 || Input.GetKeyDown("u"))
+            if (UDPInterface.spawnQuadrant == 1 || Input.GetKeyDown("u"))
                 enemManager.Spawn(ZombieLocation.FarLeft, zombieMov);
-            else if (PositionManipulate.spawnQuadrant == 2 || Input.GetKeyDown("i"))
+            else if (UDPInterface.spawnQuadrant == 2 || Input.GetKeyDown("i"))
                 enemManager.Spawn(ZombieLocation.FarRight, zombieMov);
-            else if (PositionManipulate.spawnQuadrant == 3 || Input.GetKeyDown("j"))
+            else if (UDPInterface.spawnQuadrant == 3 || Input.GetKeyDown("j"))
                 enemManager.Spawn(ZombieLocation.Left, zombieMov);
-            else if (PositionManipulate.spawnQuadrant == 4 || Input.GetKeyDown("k"))
+            else if (UDPInterface.spawnQuadrant == 4 || Input.GetKeyDown("k"))
                 enemManager.Spawn(ZombieLocation.Right, zombieMov);
-            PositionManipulate.isValidQuadrant = false;
+            UDPInterface.isValidQuadrant = false;
         }
         if (EnemyManager.ZombiesLeft == 0)
             anim.SetTrigger("Stage4Complete");
@@ -237,14 +238,30 @@ public class TutorialController : MonoBehaviour
 
     void CheckIfPaused()
     {
-        if (PositionManipulate.isPaused || Input.GetKeyDown("y"))
+        if (UDPInterface.isPaused || Input.GetKeyDown("y"))
         {
-            PositionManipulate.moveBowValid = false;
+            UDPInterface.moveBowValid = false;
             pauseText.enabled = true;
         } else{
             pauseText.enabled = false;
-            PositionManipulate.moveBowValid = true;
+            UDPInterface.moveBowValid = true;
         }
+    }
+
+    public void DisplayHit(string t)
+    {
+        hitText.text = t;
+        Color temp = hitText.color;
+        temp.a = 1;
+        hitText.color = temp;
+        Invoke("HitTextOff", 1f);
+    }
+    void HitTextOff()
+    {
+        Color temp = hitText.color;
+        temp.a = 0;
+        hitText.color = temp;
+
     }
 
 }

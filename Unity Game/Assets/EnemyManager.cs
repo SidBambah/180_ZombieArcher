@@ -15,6 +15,7 @@ public class EnemyManager : MonoBehaviour {
     public GameObject enemy;          // Reference to enemy to make duplicate of
     public Transform[] spawnPoints;   // Location to spawn enemies
 
+
     // Static variables
     public static int ZombiesLeft;
     public static bool[] positionTaken;   // Element is true if that position is taken by zombie
@@ -41,12 +42,13 @@ public class EnemyManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+        
 	}
 
     // Takes in location to spawn zombie and whether the zombie can move
     public void Spawn(TutorialController.ZombieLocation loc, bool zombieMove)
     {
+
         // If the player is dead
         if (playerHealth.currentHealth <= 0f)
         {
@@ -76,6 +78,7 @@ public class EnemyManager : MonoBehaviour {
         {
             // Enable zombie to move
             newZombie.GetComponent<ZombieMovement>().enabled = true;
+            newZombie.GetComponent<Animator>().SetTrigger("Walk");
         }
         // Keep reference of current zombie in the level
         currentZombie = newZombie;
