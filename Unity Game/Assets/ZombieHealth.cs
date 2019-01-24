@@ -69,6 +69,8 @@ public class ZombieHealth : MonoBehaviour {
                     tutCont.GetComponent<TutorialController>().DisplayHit("Body Hit!");
                 }
                 other.gameObject.GetComponent<ArrowHit>().arrowHit = true;
+                TutorialController.arrowHits += 1;
+                tutCont.GetComponent<TutorialController>().DisplayStats();
 
                
             }

@@ -22,6 +22,10 @@ public class TutorialController : MonoBehaviour
     public int maxShots = 5;          // Maximum shots a player can take before going back a stage
     public Text pauseText;
     public Text hitText;                    // Displays "Hit!" when zombie is hit
+    public Text statsText;            // Displays user's statistics
+
+    public static int arrowHits = 0;
+    public static int arrowFires = 0;
 
     Transform player;
 
@@ -262,6 +266,25 @@ public class TutorialController : MonoBehaviour
         temp.a = 0;
         hitText.color = temp;
 
+    }
+
+   public void DisplayStats()
+    {
+
+        // Display statistics
+        int misses = arrowFires - arrowHits;
+        float hit_pct;
+
+        // Compute hit percentage
+        if (arrowFires == 0)
+        {
+            hit_pct = 100f;
+        }
+        else
+        {
+            hit_pct = 100f * ((float)arrowHits / (float)arrowFires);
+        }
+        statsText.text = "Hits: " + arrowHits + "\nMisses: " + misses + "\nHit %: " + hit_pct;
     }
 
 }

@@ -11,13 +11,17 @@ public class LongbowShoot : MonoBehaviour {
 	float power; //how far the arrow will be shoot
 	public float destroyTime = 10; //destroy the instantiated arrow, after this many seconds | if destroyArrows is unchecked, this time will have no effect
 	public bool destroyArrows = false; //destroy arrows shortly after they've been shot, or not
-    public GameObject Flare;
+    public GameObject Flare; //ADDED
+    public GameObject tutCont;      // ADDED Reference to the tutorial controller
+    public GameObject flare;
+    public Transform arrow;
+    
 
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    // Use this for initialization
+    void Start () {
+        tutCont = GameObject.FindWithTag("GameController");
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -75,22 +79,37 @@ public class LongbowShoot : MonoBehaviour {
 			arrowSpawn.transform.GetComponent<Renderer>().enabled = false;
 			
 			//Instantiated projectile (arrow)
-			Transform arrow = Instantiate(projectile, arrowSpawn.transform.position, transform.rotation) as Transform;
+		    arrow = Instantiate(projectile, arrowSpawn.transform.position, transform.rotation) as Transform;
 
             //ADDED
             arrow.gameObject.tag = "Arrow";
-            GameObject flare = Instantiate(Flare, arrowSpawn.transform.position, transform.rotation, arrow.transform) as GameObject;
+            flare = Instantiate(Flare, arrowSpawn.transform.position, transform.rotation, arrow.transform) as GameObject;
+            //ADDED
+            TutorialController.arrowFires += 1;
 
             //Add force to projectile, based off power
             arrow.transform.GetComponent<Rigidbody>().AddForce(transform.forward * power);
 			
 			if(destroyArrows == true) {
-                //ADDED
-                Destroy(flare, destroyTime);
-                //Destroy instantiated arrow, after given time
-                Destroy(arrow.gameObject, destroyTime); //< you can change the amount of time until the arrow is destroyed by chaning destroyTime on the script, in the editor
+
+                //ADDED 
+                Invoke("DestroyObjects", destroyTime);
 
 			}
 		}
 	}
+
+    //ADDED
+    void DestroyObjects()
+    {
+        tutCont.GetComponent<TutorialController>().DisplayStats();
+        //ADDED
+        Destroy(flare, 0);
+        //Destroy instantiated arrow, after given time
+        Destroy(arrow.gameObject, 0); //< you can change the amount of time until the arrow is destroyed by chaning destroyTime on the script, in the editor
+
+    }
+
+
+
 }
