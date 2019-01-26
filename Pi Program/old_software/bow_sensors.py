@@ -1,7 +1,7 @@
 import socket
 import threading
 import time
-import berryIMU
+from IMU import berryIMU
 import fcntl
 import struct
 
@@ -26,7 +26,7 @@ def socket_create():
 def data_collect():
 	##Sending signals through Pi socket
 	PORT = 10000
-	SERVER_ADDRESS = "131.179.19.48"
+    SERVER_ADDRESS = "131.179.27.249"
 	ADDRESS = (SERVER_ADDRESS, PORT)
 	##Start sequence to establish connection
 	for _ in range(3):
