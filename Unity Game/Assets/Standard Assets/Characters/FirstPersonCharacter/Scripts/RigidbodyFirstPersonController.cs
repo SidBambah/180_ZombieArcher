@@ -138,8 +138,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private void FixedUpdate()
         {
             GroundCheck();
-            Vector2 input = GetInput(); //COMMENTED
-            //Vector2 input = Vector2.zero; // ADDED to prevent movement
+            Vector2 input = GetInput(); 
 
             if ((Mathf.Abs(input.x) > float.Epsilon || Mathf.Abs(input.y) > float.Epsilon) && (advancedSettings.airControl || m_IsGrounded))
             {
@@ -229,7 +228,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             // get the rotation before it's changed
             float oldYRotation = transform.eulerAngles.y;
 
-            mouseLook.LookRotation (transform, cam.transform); // COMMENTED
+            mouseLook.LookRotation (transform, cam.transform); // COMMENTED FOR INTEGRATION
 
             if (m_IsGrounded || advancedSettings.airControl)
             {

@@ -85,7 +85,7 @@ public class LongbowShoot : MonoBehaviour {
             arrow.gameObject.tag = "Arrow";
             flare = Instantiate(Flare, arrowSpawn.transform.position, transform.rotation, arrow.transform) as GameObject;
             //ADDED
-            TutorialController.arrowFires += 1;
+            GameController.arrowFires += 1;
 
             //Add force to projectile, based off power
             arrow.transform.GetComponent<Rigidbody>().AddForce(transform.forward * power);
@@ -102,7 +102,7 @@ public class LongbowShoot : MonoBehaviour {
     //ADDED
     void DestroyObjects()
     {
-        tutCont.GetComponent<TutorialController>().DisplayStats();
+        tutCont.GetComponent<GameController>().DisplayStats();
         //ADDED
         Destroy(flare, 0);
         //Destroy instantiated arrow, after given time

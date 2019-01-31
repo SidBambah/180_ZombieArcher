@@ -7,11 +7,10 @@ using UnityEngine.AI;
 
 // Description: 
 // 
-public class TutorialController : MonoBehaviour
+public class GameController : MonoBehaviour
 {
 
     // Public variables
-    public int Cur_State;    // Indicates current state of tutorial scene
     public Animator anim;    // Reference to UI animator
     public Text stageText;   // Displays current stage of tutorial stage
     public Text zombiesLeftText; // Displays number of zombies left
@@ -23,33 +22,44 @@ public class TutorialController : MonoBehaviour
     public Text pauseText;
     public Text hitText;                    // Displays "Hit!" when zombie is hit
     public Text statsText;            // Displays user's statistics
+    public ZombieLocation loc;        // Where to spawn zombie
+    public ZombieLocation resLoc;     // Where to respawn zombie
 
+    public static int Cur_State;    // Indicates current state of tutorial scene
     public static int arrowHits = 0;
     public static int arrowFires = 0;
+    public static int bodyShots = 0;
+    public static int headShots = 0;
+    public static int ZombiesLeft;
+    public static int zombiesDestroyed = 0;
 
     Transform player;
 
     // Private variables
-    private enum State { GameStart, Stage1, Stage2, Stage3, Stage4, GameOver };  // Different states for tutorial 
+    private enum State { GameStart, Stage1, Stage2, Stage3, Stage4, FreePlay, GameOver };  // Different states for tutorial 
     private float restartTimer;       // After game is over, time before scene is reloaded
-    
+    private float spawnTimer;         // Timer for spawning zombies
+    private const float spawnTime = 3f;     // Time between zombie spawns in free play mode
 
     // Use this for initialization
     void Start()
     {
+        // 14 total zombies to kill in tutorial stage
+        ZombiesLeft = 14;
+
         player = GameObject.FindGameObjectWithTag("Player").transform;
         restartTimer = 0f;
+        spawnTimer = 0f;
+
+        // Initialize location
+        loc = ZombieLocation.Near;
+        resLoc = ZombieLocation.Near;
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        // Display stage number
-        stageText.text = "Stage " + Cur_State + "/4";
-
-        // Display number of zombies left
-        zombiesLeftText.text = "Zombies Left: " + EnemyManager.ZombiesLeft;
+    
 
         // Enter stage based on current state
         switch (Cur_State)
@@ -69,15 +79,34 @@ public class TutorialController : MonoBehaviour
             case (int)State.Stage4:
                 Stage4();
                 break;
+            case (int)State.FreePlay:
+                FreePlay();
+                break;
             case (int)State.GameOver:
                 GameOver();
                 break;
         }
+
+        // Check if game is paused
         if (Cur_State != (int)State.GameStart)
         {
             CheckIfPaused();
         }
 
+        // Display text
+        if (Cur_State != (int)State.FreePlay)
+        {
+            // Display stage number
+            stageText.text = "Tutorial Stage " + Cur_State + "/4";
+
+            // Display number of zombies left
+            zombiesLeftText.text = "Zombies Left: " + ZombiesLeft;
+        }
+        else
+        {
+            stageText.text = "Survival Mode";
+            zombiesLeftText.text = "Active Zombies: " + EnemyManager.activeZombies;
+        }
     }
 
 
@@ -100,38 +129,35 @@ public class TutorialController : MonoBehaviour
         zombieMov = false;
 
         // Close zombie: Unlimited tries
-        if (EnemyManager.ZombiesLeft == 14)
+        if (ZombiesLeft == 14)
         {
-            enemManager.Spawn(ZombieLocation.Near, zombieMov);
+            loc = ZombieLocation.Near;
+            resLoc = ZombieLocation.Near;
         }
         // Middle zombie: 5 tries, if you fail to kill zombie
         // then destroy current zombie and spawn near zombie again
-        else if (EnemyManager.ZombiesLeft == 13)
+        else if (ZombiesLeft == 13)
         {
-            enemManager.Spawn(ZombieLocation.Middle, zombieMov);
-            if (Bow.arrowsShot == maxShots)
-            {
-                enemManager.RespawnPrevious(ZombieLocation.Middle);
-            }
+            loc = ZombieLocation.Middle;
+            resLoc = ZombieLocation.Near;
         }
         // Far zombie: 5 tries, if you fail to kill zombie
         // then destroy current zombie and spawn middle zombie again
-        else if (EnemyManager.ZombiesLeft == 12)
+        else if (ZombiesLeft == 12)
         {
-            enemManager.Spawn(ZombieLocation.Far, zombieMov);
-            if (Bow.arrowsShot == maxShots)
-            {
-                enemManager.RespawnPrevious(ZombieLocation.Far);
-            }
+            loc = ZombieLocation.Far;
+            resLoc = ZombieLocation.Middle;
         }
         // If you successfully kill all zombies, call Stage2 function
-        else if (EnemyManager.ZombiesLeft == 11)
+        else if (ZombiesLeft == 11)
         {
             // Cause transition in UI animator
             anim.SetTrigger("Stage1Complete");
             Cur_State = (int)State.Stage2;
+            return;
         }
 
+        CheckBowShots();
     }
 
     // Same logic as Stage1, except zombies spawned horizontally
@@ -139,33 +165,31 @@ public class TutorialController : MonoBehaviour
     {
         zombieMov = false;
 
-        if (EnemyManager.ZombiesLeft == 11)
+        if (ZombiesLeft == 11)
         {
-            enemManager.Spawn(ZombieLocation.Left, zombieMov);
-
+            loc = ZombieLocation.Left;
+            resLoc = ZombieLocation.Left;
         }
-        else if (EnemyManager.ZombiesLeft == 10)
+        else if (ZombiesLeft == 10)
         {
-            enemManager.Spawn(ZombieLocation.Middle, zombieMov);
-            if (Bow.arrowsShot == maxShots)
-            {
-                enemManager.RespawnPrevious(ZombieLocation.Middle);
-            }
+            loc = ZombieLocation.Middle;
+            resLoc = ZombieLocation.Left;
         }
-        else if (EnemyManager.ZombiesLeft == 9)
+        else if (ZombiesLeft == 9)
         {
-            enemManager.Spawn(ZombieLocation.Right, zombieMov);
-            if (Bow.arrowsShot == maxShots)
-            {
-                enemManager.RespawnPrevious(ZombieLocation.Right);
-            }
+            loc = ZombieLocation.Right;
+            resLoc = ZombieLocation.Middle;
         }
-        else if (EnemyManager.ZombiesLeft == 8)
+        else if (ZombiesLeft == 8)
         {
             // Cause transition in UI animator
             anim.SetTrigger("Stage2Complete");
             Cur_State = (int)State.Stage3;
+            return;
         }
+
+        CheckBowShots();
+
     }
 
     // Spawn zombies horizontally and allow them to move
@@ -174,33 +198,39 @@ public class TutorialController : MonoBehaviour
         // Zombies can move in this stage
         zombieMov = true;
 
-        if (EnemyManager.ZombiesLeft == 8)
+        if (ZombiesLeft == 8)
         {
-            enemManager.Spawn(ZombieLocation.Left, zombieMov);
-
+            loc = ZombieLocation.FarLeft;
+            resLoc = ZombieLocation.FarLeft;
         }
-        else if (EnemyManager.ZombiesLeft == 7)
+        else if (ZombiesLeft == 7)
         {
-            enemManager.Spawn(ZombieLocation.Middle, zombieMov);
-            if (Bow.arrowsShot == maxShots)
-            {
-                enemManager.RespawnPrevious(ZombieLocation.Middle);
-            }
+            loc = ZombieLocation.Far;
+            resLoc = ZombieLocation.FarLeft;
         }
-        else if (EnemyManager.ZombiesLeft == 6)
+        else if (ZombiesLeft == 6)
         {
-            enemManager.Spawn(ZombieLocation.Right, zombieMov);
-            if (Bow.arrowsShot == maxShots)
-            {
-                enemManager.RespawnPrevious(ZombieLocation.Right);
-            }
+            loc = ZombieLocation.FarRight;
+            resLoc = ZombieLocation.Far;
         }
-        else if (EnemyManager.ZombiesLeft == 5)
+        else if (ZombiesLeft == 5)
         {
             // Cause transition in UI animator
             anim.SetTrigger("Stage3Complete");
             Cur_State = (int)State.Stage4;
+            return;
         }
+        CheckBowShots();
+    }
+
+    // Check if need to respawn zombie
+    // If not, spawn new zombie
+    void CheckBowShots()
+    {
+        if (Bow.arrowsShot >= maxShots)
+            enemManager.RespawnPrevious(resLoc);
+        else
+            enemManager.Spawn(loc, zombieMov, false);
     }
 
     // Spawns zombies in 4 different locations
@@ -210,22 +240,45 @@ public class TutorialController : MonoBehaviour
         if (UDPInterface.isValidQuadrant)
         {
             if (UDPInterface.spawnQuadrant == 1 || Input.GetKeyDown("u"))
-                enemManager.Spawn(ZombieLocation.FarLeft, zombieMov);
+                loc = ZombieLocation.FarLeft;
             else if (UDPInterface.spawnQuadrant == 2 || Input.GetKeyDown("i"))
-                enemManager.Spawn(ZombieLocation.FarRight, zombieMov);
+                loc = ZombieLocation.FarRight;
             else if (UDPInterface.spawnQuadrant == 3 || Input.GetKeyDown("j"))
-                enemManager.Spawn(ZombieLocation.Left, zombieMov);
+                loc = ZombieLocation.Left;
             else if (UDPInterface.spawnQuadrant == 4 || Input.GetKeyDown("k"))
-                enemManager.Spawn(ZombieLocation.Right, zombieMov);
-            UDPInterface.isValidQuadrant = false;
+                loc = ZombieLocation.Right;
+            // UDPInterface.isValidQuadrant = false;
+            enemManager.Spawn(loc, zombieMov, false);
         }
-        if (EnemyManager.ZombiesLeft == 0)
-            anim.SetTrigger("Stage4Complete");
+        if (ZombiesLeft == 0)
+        {
+            Cur_State = (int)State.FreePlay;
+        }
+
+
+
+        //    anim.SetTrigger("Stage4Complete");
 
 
     }
 
-    // Reloads the game after restartDelay has epalsed
+    // Free play mode where zombies get progressively stronger and faster
+    void FreePlay()
+    {
+        // Spawn zombie every 3 seconds
+        spawnTimer += Time.deltaTime;
+        if (spawnTimer >= spawnTime)
+        {
+            enemManager.Spawn(loc, zombieMov, true);
+
+            // Reset timer
+            spawnTimer = 0f;
+        }
+
+    }
+
+
+    // Reloads the game after restartDelay has elapsed
     void GameOver()
     {
         // Begin Timer
@@ -274,17 +327,23 @@ public class TutorialController : MonoBehaviour
         // Display statistics
         int misses = arrowFires - arrowHits;
         float hit_pct;
+        float body_pct;
+        float head_pct;
 
         // Compute hit percentage
         if (arrowFires == 0)
         {
             hit_pct = 100f;
+            body_pct = 100f;
+            head_pct = 100f;
         }
         else
         {
             hit_pct = 100f * ((float)arrowHits / (float)arrowFires);
+            body_pct = 100f * ((float)bodyShots / (float)arrowFires);
+            head_pct = 100f * ((float)headShots / (float)arrowFires);
         }
-        statsText.text = "Hits: " + arrowHits + "\nMisses: " + misses + "\nHit %: " + hit_pct;
+        statsText.text = "Hits: " + arrowHits + "\nMisses: " + misses + "\nHit %: " + hit_pct + "\nBody Shots: " + bodyShots + "\nHead Shots: " + headShots;
     }
 
 }

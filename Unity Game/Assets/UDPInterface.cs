@@ -20,18 +20,18 @@ public class UDPInterface : MonoBehaviour {
 
     // Private variables
     private float previous_force = 0;
-    private string HOST = "131.179.27.249"; //Must change this each time
+    private string HOST = "131.179.19.48"; //Must change this each time
     private int PORT = 10002;
 	private UdpClient unity_socket;
 	private IPEndPoint ep;
 
 
 	// Use this for initialization
-	void Start () {
+    void Start () {
 		//Create socket
-		//CreateSocket();
+		CreateSocket();
 		//Always be on "ON" mode for testing purposes
-		//SendSignal("collect");
+		SendSignal("collect");
 	}
 	
 	// Update is called once per frame
@@ -55,7 +55,6 @@ public class UDPInterface : MonoBehaviour {
         for (int i = 0; i < 3; i++)
         {
             unity_socket.Send(message, message.Length);
-            Debug.Log("Sent Signal");
         }
     }
 
@@ -70,7 +69,7 @@ public class UDPInterface : MonoBehaviour {
     {
         float smooth = 5.0f;
         float tiltAroundX = package["angle1"].Value<float>();
-        float tiltAroundY = package["angle2"].Value<float>();
+        float tiltAroundY = package["angle3"].Value<float>();
 
         //Quaternion target = Quaternion.Euler(tiltAroundX, tiltAroundY, 0);
         Quaternion target = Quaternion.Euler(tiltAroundX, tiltAroundY, 0);

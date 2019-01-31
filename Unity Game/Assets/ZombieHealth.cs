@@ -14,7 +14,7 @@ public class ZombieHealth : MonoBehaviour {
     public int startingHealth = 100;        // Starting health of zombie
     public int currentHealth;               // Current health of zombie
     public int scoreValue = 50;             // Score increase for each zombie hit
-    public int positionTakenIndex;          // Position index into EnemyManager's positionTaken array
+    public int openIndex;                   // Position taken into zombie manager array
     public float zombieNeckHeight = 1.5f;   // Measured location of neck to determine head shots
     public GameObject tutCont;      // Reference to the tutorial controller
 
@@ -37,7 +37,6 @@ public class ZombieHealth : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        Debug.Log("ZOMBIE HEALTH: " + currentHealth);
 	}
 
     void OnTriggerEnter(Collider other)
@@ -58,7 +57,10 @@ public class ZombieHealth : MonoBehaviour {
                     ZombieTakeDamage(2 * damagePerShot);
 
                     // Display hit text
-                    tutCont.GetComponent<TutorialController>().DisplayHit("Headshot!");
+                    tutCont.GetComponent<GameController>().DisplayHit("Headshot!");
+
+                    // Increment head shots
+                    GameController.headShots += 1;
                 }
                 else
                 {
@@ -66,11 +68,14 @@ public class ZombieHealth : MonoBehaviour {
                     ZombieTakeDamage(damagePerShot);
 
                     // Display hit text
-                    tutCont.GetComponent<TutorialController>().DisplayHit("Body Hit!");
+                    tutCont.GetComponent<GameController>().DisplayHit("Body Hit!");
+
+                    // Incrememnt body shots
+                    GameController.bodyShots += 1;
                 }
                 other.gameObject.GetComponent<ArrowHit>().arrowHit = true;
-                TutorialController.arrowHits += 1;
-                tutCont.GetComponent<TutorialController>().DisplayStats();
+                GameController.arrowHits += 1;
+                tutCont.GetComponent<GameController>().DisplayStats();
 
                
             }
@@ -126,19 +131,26 @@ public class ZombieHealth : MonoBehaviour {
         GetComponent<NavMeshAgent>().enabled = false;
 
         // Decrement number of zombies from the scene
-        EnemyManager.ZombiesLeft -= 1;
+        GameController.ZombiesLeft -= 1;
 
-        // Allow that position to be taken by a new zombie
-        EnemyManager.positionTaken[positionTakenIndex] = false;
+        // Allow position in enemy manager array to be reused
+        EnemyManager.spotTaken[openIndex] = false;
 
         // Play death animation
         GetComponent<Animator>().SetTrigger("Death");
 
         // Remove zombie from game environment, allow time for animation
-        Destroy(gameObject, 0f);
+        Destroy(EnemyManager.zombiesAlive[openIndex], 0f);
 
         // Reset arrows shot to 0
         Bow.arrowsShot = 0;
+
+        // Decrement number of active zombies in the scene
+        EnemyManager.activeZombies -= 1;
+
+        // Increment number of zombies killed
+        GameController.zombiesDestroyed += 1;
+
     }
 
 }
