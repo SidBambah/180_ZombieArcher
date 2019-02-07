@@ -11,27 +11,14 @@ public class Bow : MonoBehaviour {
 
     public static int arrowsShot = 0;
 
-    private GameObject arrow;
-    Camera cam;
     UDPInterface udpInterface;
 
 
-    void SpawnArrow() {
-        GameObject a;
-        //Instantiate an arrow facing the direction of the camera
-        a = Instantiate(arrow, transform.position + new Vector3(0, 1, 0), transform.rotation  * Quaternion.Euler(0, 90, 0));
-        //float x = Screen.width / 2;
-        //float y = Screen.height / 2;
 
-        a.gameObject.tag = "Arrow";
-        a.GetComponent<Rigidbody>().AddForce(transform.forward * arrowSpeed);
-
-    }
 
 
 	// Use this for initialization
     void Start () { 
-        arrow = GameObject.Find("Arrow");
         udpInterface = GetComponent<UDPInterface>();
         // Used to check whether arrow has been fired
         
@@ -42,7 +29,6 @@ public class Bow : MonoBehaviour {
 	void Update () {
         if (Input.GetButtonDown("Fire1") || UDPInterface.isFired)
         {
-            SpawnArrow();
             arrowsShot += 1;
 
             // Set boolean back to 0

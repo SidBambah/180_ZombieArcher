@@ -29,7 +29,8 @@ public class ZombieAttack : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        // If the player is in the range of the zombie
+
+     // If the player is in the range of the zombie
         if (other.gameObject == player)
         {
             playerInRange = true;
@@ -38,11 +39,14 @@ public class ZombieAttack : MonoBehaviour {
 
     void OnTriggerExit(Collider other)
     {
+
         // If the player leaves the range of the zombie
         if (other.gameObject == player)
         {
             playerInRange = false;
+            GetComponent<Animator>().SetTrigger("Walk");
         }
+
     }
 
     // Update is called once per frame
@@ -50,11 +54,15 @@ public class ZombieAttack : MonoBehaviour {
 
         // Increment timer on each frame
         timer += Time.deltaTime;
+        //Debug.Log("Player health: " + playerHealth.currentHealth);
+        //Debug.Log("PlayerInRange: " + playerInRange);
 
         // If waited long enough, the player is in range, and the zombie is alive
         if (timer >= timeBetweenAttacks && playerInRange && zombieHealth.currentHealth > 0) 
         {
+
             Attack();
+            GetComponent<Animator>().SetTrigger("Attack");
         }
 
         // If the player is dead

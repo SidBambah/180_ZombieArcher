@@ -15,12 +15,14 @@ public class LongbowShoot : MonoBehaviour {
     public GameObject tutCont;      // ADDED Reference to the tutorial controller
     public GameObject flare;
     public Transform arrow;
-    
+    public MachineLearning ML;      // ADDED
+
 
 
     // Use this for initialization
     void Start () {
         tutCont = GameObject.FindWithTag("GameController");
+        ML = GameObject.FindWithTag("MachineLearning").GetComponent<MachineLearning>();
     }
 	
 	// Update is called once per frame
@@ -86,6 +88,7 @@ public class LongbowShoot : MonoBehaviour {
             flare = Instantiate(Flare, arrowSpawn.transform.position, transform.rotation, arrow.transform) as GameObject;
             //ADDED
             GameController.arrowFires += 1;
+            GameController.tutArrowFires += 1;
 
             //Add force to projectile, based off power
             arrow.transform.GetComponent<Rigidbody>().AddForce(transform.forward * power);
@@ -93,20 +96,30 @@ public class LongbowShoot : MonoBehaviour {
 			if(destroyArrows == true) {
 
                 //ADDED 
-                Invoke("DestroyObjects", destroyTime);
+                //Invoke("DestroyObjects", destroyTime);
+                StartCoroutine(DestroyObjects(arrow, destroyTime));
 
-			}
+            }
 		}
 	}
 
     //ADDED
-    void DestroyObjects()
+    IEnumerator DestroyObjects(Transform a, float desTime)
     {
+
+        yield return new WaitForSeconds(desTime);
+
         tutCont.GetComponent<GameController>().DisplayStats();
+
+        // Call machine learning miss function if the arrow did not deal damage to a zombie
+        if (a.gameObject.GetComponent<ArrowHit>().arrowHit == false)
+            ML.missShot(ML.playerName, ML.dbPath);
+        
+
         //ADDED
         Destroy(flare, 0);
         //Destroy instantiated arrow, after given time
-        Destroy(arrow.gameObject, 0); //< you can change the amount of time until the arrow is destroyed by chaning destroyTime on the script, in the editor
+        Destroy(a.gameObject, 0); //< you can change the amount of time until the arrow is destroyed by chaning destroyTime on the script, in the editor
 
     }
 

@@ -20,7 +20,6 @@ public class PlayerHealth : MonoBehaviour
     
     // Private variables
     AudioSource playerAudio;        // Sound to play when player takes damage
-    PlayerShooting playerShooting;  // Reference to PlayerShooting script
     bool isDead;                    // Indicates if the player is dead
     bool damaged;                   // Indicates if the player has taken damage within interval
     //Animator anim;                // Do not currently have animator
@@ -29,7 +28,6 @@ public class PlayerHealth : MonoBehaviour
     void Start()
     {
         playerAudio = GetComponent<AudioSource>(); // Get Audio Source attacked to Player
-        playerShooting = GetComponentInChildren<PlayerShooting>(); // Get reference to PlayerShooting script
         currentHealth = startingHealth;            // Initialize current health
     }
 
@@ -61,7 +59,7 @@ public class PlayerHealth : MonoBehaviour
         healthSlider.value = currentHealth;
 
         //Play audio for player taking damage
-        playerAudio.Play();
+        //playerAudio.Play();
 
         // Call Death function
         if (currentHealth <= 0 && !isDead)
@@ -76,11 +74,9 @@ public class PlayerHealth : MonoBehaviour
         isDead = true;
 
         // Play the death clip when player dies
-        playerAudio.clip = deathClip;
-        playerAudio.Play();
+        //playerAudio.clip = deathClip;
+        //playerAudio.Play();
 
-        // Disable player shooting functionality
-        playerShooting.enabled = false;
 
     }
 }

@@ -17,6 +17,8 @@ public class ZombieHealth : MonoBehaviour {
     public int openIndex;                   // Position taken into zombie manager array
     public float zombieNeckHeight = 1.5f;   // Measured location of neck to determine head shots
     public GameObject tutCont;      // Reference to the tutorial controller
+    public bool arrowHit = false;
+    public MachineLearning ML;
 
     //public AudioClip deathClip;           // TODO: Sound zombie makes when dies
 
@@ -24,65 +26,24 @@ public class ZombieHealth : MonoBehaviour {
     //AudioSource zombieAudio;            // Audio source for zombie
     //ParticleSystem hitParticles;        // TODO: Will contain blood
     //CapsuleCollider capsuleCollider;    // Capsule collider for zombie
-    
 
-	// Use this for initialization
-	void Awake () {
+
+    // Use this for initialization
+    void Awake () {
         //zombieAudio = GetComponent<AudioSource>();
         //hitParticles = GetComponentInChildren<ParticleSystem>(); // TODO: Find particle system
         //capsuleCollider = GetComponent<CapsuleCollider>();         // Get reference to capsule collider
         currentHealth = startingHealth;                            // Initialize current health
         tutCont = GameObject.FindWithTag("GameController");
-	}
+        ML = GameObject.FindWithTag("MachineLearning").GetComponent<MachineLearning>();
+    }
 	
 	// Update is called once per frame
 	void Update () {
 	}
 
-    void OnTriggerEnter(Collider other)
-    {
-        // If an arrow is in the capsule collider
-        if (other.gameObject.tag == "Arrow")
-        {
-            // Find out whether arrow has dealt damage
-            bool arrowhit = other.gameObject.GetComponent<ArrowHit>().arrowHit;
 
-            // Deal damage if arrow has not dealt damage before
-            if (!arrowhit)
-            {
-                float yPos = other.gameObject.transform.position.y;
-                if (other.gameObject.transform.position.y > zombieNeckHeight)
-                {
-                    // Headshot has occurred
-                    ZombieTakeDamage(2 * damagePerShot);
-
-                    // Display hit text
-                    tutCont.GetComponent<GameController>().DisplayHit("Headshot!");
-
-                    // Increment head shots
-                    GameController.headShots += 1;
-                }
-                else
-                {
-                    // Deal damage to zombie
-                    ZombieTakeDamage(damagePerShot);
-
-                    // Display hit text
-                    tutCont.GetComponent<GameController>().DisplayHit("Body Hit!");
-
-                    // Incrememnt body shots
-                    GameController.bodyShots += 1;
-                }
-                other.gameObject.GetComponent<ArrowHit>().arrowHit = true;
-                GameController.arrowHits += 1;
-                tutCont.GetComponent<GameController>().DisplayStats();
-
-               
-            }
-        }
-    }
-
-    void ZombieTakeDamage(int amount)
+    public void ZombieTakeDamage(int amount)
     {
         // TODO: Play zombie audio when zombie is damaged
         //zombieAudio.Play();
@@ -119,6 +80,9 @@ public class ZombieHealth : MonoBehaviour {
         // Play death animation
         GetComponent<Animator>().SetTrigger("Death");
 
+        // Increment number of zombies killed
+        GameController.zombiesDestroyed += 1;
+
         Invoke("Helper", 2f);
 
         
@@ -142,14 +106,12 @@ public class ZombieHealth : MonoBehaviour {
         // Remove zombie from game environment, allow time for animation
         Destroy(EnemyManager.zombiesAlive[openIndex], 0f);
 
-        // Reset arrows shot to 0
-        Bow.arrowsShot = 0;
+        // Reset arrows shot to 0 since zombie respawned
+        GameController.tutArrowFires = 0;
 
         // Decrement number of active zombies in the scene
         EnemyManager.activeZombies -= 1;
 
-        // Increment number of zombies killed
-        GameController.zombiesDestroyed += 1;
 
     }
 

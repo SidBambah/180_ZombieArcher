@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 // Description: 
 // Every 7 seconds, an attempt to spawn a zombie occurs
@@ -28,11 +29,11 @@ public class EnemyManager : MonoBehaviour {
     // Private variables
     private int maxPositions = 7;
     private int maxZombies = 32;
+    public int maxActiveZombies = 2;
 
-	// Use this for initialization
-	void Start () {
-
-        // For now, we will have 3 spawn points
+    // Use this for initialization
+    void Start () {
+    
         zombiesAlive = new GameObject[maxZombies];
         spotTaken = new bool[maxZombies];
 
@@ -51,7 +52,7 @@ public class EnemyManager : MonoBehaviour {
 	}
 
     // Takes in location to spawn zombie and whether the zombie can move
-    public void Spawn(GameController.ZombieLocation loc, bool zombieMove, bool freePlay)
+    public void Spawn(GameController.ZombieLocation loc, bool zombieMove, bool freePlay, float speed)
     {
 
         // If the player is dead
@@ -74,7 +75,7 @@ public class EnemyManager : MonoBehaviour {
         int openIndex = -1;
 
         // Look for open position in zombie array
-        for (int k = 0; k < maxZombies; k++)
+        for (int k = 0; k < maxActiveZombies; k++)
         {
             if (spotTaken[k] == false)
             {
@@ -117,6 +118,8 @@ public class EnemyManager : MonoBehaviour {
             // Enable zombie to move
             newZombie.GetComponent<ZombieMovement>().enabled = true;
             newZombie.GetComponent<Animator>().SetTrigger("Walk");
+            newZombie.GetComponent<NavMeshAgent>().speed = speed;
+            newZombie.GetComponent<Animator>().speed = speed + 1.0f; // Correcting factor
         }
 
         // Store new zombie
@@ -137,18 +140,59 @@ public class EnemyManager : MonoBehaviour {
         // Increment number of zombies left, implements respawning previous zombies
         GameController.ZombiesLeft += 1;
 
-        // Destroy every zombie on scene zombie
+        DestroyAllZombies();
+
+        // Reset the number of arrows shot to 0
+        GameController.tutArrowFires = 0;
+
+    }
+
+    public void DestroyAllZombies()
+    {
         for (int k = 0; k < maxZombies; k++)
         {
             if (spotTaken[k] == true)
             {
                 Destroy(zombiesAlive[k], 0);
                 spotTaken[k] = false;
+               
+            }
+        }
+        activeZombies = 0;
+
+
+    }
+
+    // Increase or decrease speed of all zombies by amt
+    public void setSpeed(float speed)
+    {
+        for (int k = 0; k < maxZombies; k++)
+        {
+            if (spotTaken[k] == true)
+            {
+                zombiesAlive[k].GetComponent<NavMeshAgent>().speed = speed;
+                zombiesAlive[k].GetComponent<Animator>().speed = speed + 1.0f;
             }
         }
 
-        // Reset the number of arrows shot to 0
-        Bow.arrowsShot = 0;
+
+    }
+
+    public void incMaxActiveZombies()
+    {
+        maxActiveZombies += 1;
+    }
+
+    public void decMaxActiveZombies()
+    {
+        if (spotTaken[maxActiveZombies - 1] == true)
+        {
+            Destroy(zombiesAlive[maxActiveZombies - 1], 0);
+            spotTaken[maxActiveZombies - 1] = false;
+        }
+        maxActiveZombies -= 1;
 
     }
 }
+
+

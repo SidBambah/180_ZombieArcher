@@ -1724,6 +1724,48 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!1 &91393182
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 91393184}
+  - component: {fileID: 91393183}
+  m_Layer: 0
+  m_Name: MachineLearning
+  m_TagString: MachineLearning
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &91393183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 91393182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a59c1cd17d53824db100a11bbaed60f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerName: Sid
+  dbPath: 
+--- !u!4 &91393184
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 91393182}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.5190816, y: 2.6315894, z: -7.274087}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &92294389
 GameObject:
   m_ObjectHideFlags: 0
@@ -3015,7 +3057,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 166780861}
   m_LocalRotation: {x: 0.008419294, y: 0.7070572, z: 0.70705616, w: -0.008419261}
-  m_LocalPosition: {x: 4.149686, y: 0.055998355, z: 0.9913142}
+  m_LocalPosition: {x: 4.149686, y: 0.055998355, z: 6.95}
   m_LocalScale: {x: 3.8233247, y: 3.823325, z: 3.823325}
   m_Children: []
   m_Father: {fileID: 368211794}
@@ -5997,6 +6039,9 @@ MonoBehaviour:
   statsText: {fileID: 950973018}
   loc: 0
   resLoc: 0
+  zombieSpeed: 0.1
+  playerHealth: {fileID: 1865449916}
+  player: {fileID: 0}
 --- !u!4 &330977653
 Transform:
   m_ObjectHideFlags: 0
@@ -13588,7 +13633,8 @@ MonoBehaviour:
   xmin: -0.5
   xmax: 6
   zmin: -6
-  zmax: -4
+  zmax: 3
+  maxActiveZombies: 2
 --- !u!4 &845836058
 Transform:
   m_ObjectHideFlags: 0
@@ -14836,7 +14882,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 150, y: -200}
-  m_SizeDelta: {x: 200, y: 200}
+  m_SizeDelta: {x: 250, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &950973016
 MonoBehaviour:
@@ -14903,7 +14949,9 @@ MonoBehaviour:
 
     Body Shots: 0
 
-    Head Shots: 0'
+    Head Shots: 0
+
+    Zombies Destroyed: 0'
 --- !u!222 &950973019
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -24360,7 +24408,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1541199457}
   m_LocalRotation: {x: -0.000000053385083, y: 0.7071068, z: 0.7071068, w: 0.000000053385083}
-  m_LocalPosition: {x: 2.8922176, y: 0.055999994, z: 2.2564056}
+  m_LocalPosition: {x: 2.8922176, y: 0.055999994, z: 8.24}
   m_LocalScale: {x: 3.8233244, y: 3.8233244, z: 3.8233244}
   m_Children: []
   m_Father: {fileID: 368211794}
@@ -26707,7 +26755,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1689330616}
   m_LocalRotation: {x: -0.7071066, y: 0.0005121827, z: 0.0005121827, w: 0.7071066}
-  m_LocalPosition: {x: 2.8921568, y: 0.056000143, z: 0.99830127}
+  m_LocalPosition: {x: 2.8921568, y: 0.056000143, z: 6.97}
   m_LocalScale: {x: 3.823326, y: 3.823325, z: 3.823325}
   m_Children: []
   m_Father: {fileID: 368211794}
@@ -31010,6 +31058,14 @@ Prefab:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 13600000, guid: c6453f8e1f814744d8b94e5a6d1f9942, type: 2}
+      propertyPath: m_Radius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 13600000, guid: c6453f8e1f814744d8b94e5a6d1f9942, type: 2}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c6453f8e1f814744d8b94e5a6d1f9942, type: 2}
   m_IsPrefabAsset: 0
@@ -32211,7 +32267,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2026650677}
   m_LocalRotation: {x: 0.49548134, y: 0.50447834, z: 0.50447834, w: -0.49548116}
-  m_LocalPosition: {x: 4.128954, y: 0.055999964, z: 2.2573612}
+  m_LocalPosition: {x: 4.128954, y: 0.055999964, z: 8.053}
   m_LocalScale: {x: 3.8233247, y: 3.8233244, z: 3.8233244}
   m_Children: []
   m_Father: {fileID: 368211794}

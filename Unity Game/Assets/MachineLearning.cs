@@ -6,8 +6,8 @@ using System.IO;
 public class MachineLearning : MonoBehaviour
 {
 	//Define the player and database location
-	string playerName = "Sid";
-	private string dbPath;
+	public string playerName = "Sid";
+	public string dbPath;
 	
     // Start is called before the first frame update
     void Start()

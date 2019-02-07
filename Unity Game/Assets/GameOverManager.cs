@@ -26,9 +26,7 @@ public class GameOverManager : MonoBehaviour {
         // If the player is dead
 		if (playerHealth.currentHealth <= 0 || zombiesKilled >= 10)
         {
-
-            // Set GameOver trigger to transition to GameOver image
-            anim.SetTrigger("Stage3Complete");
+        
 
             // Begin Timer
             restartTimer += Time.deltaTime;
