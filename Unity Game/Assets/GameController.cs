@@ -13,7 +13,10 @@ public class GameController : MonoBehaviour
     // Public variables
     public Animator anim;    // Reference to UI animator
     public Text stageText;   // Displays current stage of tutorial stage
+    public Text gameStartText; // Displays start message
+    public Text gameOverText;  // /Dispalys game over 
     public Text zombiesLeftText; // Displays number of zombies left
+    public Image startImage;     // Background image
     public float restartDelay = 2f;   // How long it takes before we restart the game
     public enum ZombieLocation { Near, Middle, Far, Left, Right, FarLeft, FarRight }; // Locations to spawn zombies
     public EnemyManager enemManager;  // Reference to enemy manager script
@@ -45,11 +48,21 @@ public class GameController : MonoBehaviour
     private float spawnTime = 4f;     // Time between zombie spawns in free play mode
     private float capacityTimer;      // Timer for increasing capacity of zombies in scene
     private float capacityTime = 5f;  // Time between increasing capacity of zombies
+    private float startTimer;         // Timer for staying in gamestart state
+    private float startTime = 3f;          // Time to stay in gamestart state
+    private float narrativeTimer;
+    private float narrativeTime = 34f;
+    private float MLTimer;
+    private float MLTime = 20f;
+    private bool start = false;
+    private bool narrativeDone = false;
+    private int textYPos = -600;
 
 
     // Use this for initialization
     void Start()
     {
+        Cur_State = (int)State.GameStart;
         // 9 total zombies to kill in tutorial stage
         ZombiesLeft = 9;
 
@@ -57,6 +70,9 @@ public class GameController : MonoBehaviour
         restartTimer = 0f;
         spawnTimer = 0f;
         capacityTimer = 0f;
+        startTimer = 0f;
+        narrativeTimer = 0f;
+        MLTimer = 0f;
 
         // Initialize location
         loc = ZombieLocation.Near;
@@ -127,10 +143,87 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetKeyDown("return") || !UDPInterface.isPaused)
         {
-            // Cause transition in UI animator
-            anim.SetTrigger("GameStart");
-            Cur_State = (int)State.Stage1;
+            start = true;
+            //narrativeDone = true; // Testing
         }
+
+        if (start == true && narrativeDone == false)
+        {
+            NarrativeAnims();
+            narrativeTimer += Time.deltaTime;
+            if (narrativeTimer >= narrativeTime)
+            {
+                narrativeDone = true;
+
+            }
+        }
+
+        if (narrativeDone == true)
+        {
+
+            GameStartAnims();
+            startTimer += Time.deltaTime;
+            if (startTimer >= startTime)
+            {
+                // Cause transition in UI animator
+
+                //anim.SetTrigger("GameStart");
+                Cur_State = (int)State.Stage1;
+                // Reset timer and start
+                startTimer = 0f;
+                start = false;
+            }
+        }
+    }
+
+    void NarrativeAnims()
+    {
+        gameStartText.fontSize = 40;
+        gameStartText.lineSpacing = 1.5f;
+
+        Vector3 temp = gameStartText.rectTransform.position;
+        temp.y = textYPos;
+        gameStartText.rectTransform.position = temp;
+
+        gameStartText.alignment = TextAnchor.MiddleLeft;
+        gameStartText.text = "The year is 3019 and the CDC developed a new superbug for biological warfare." +
+            " Unfortunately, the antidote to this superbug is extremely hard to develop and is therefore protected" +
+            " in a secret underground vault in Area 51 making it notoriously hard to access.\n\n" +
+
+            "One day, an evil scientist who had enough of humanity’s wickedness decided to release the superbug to the populace. It instantly infected" +
+            " anyone who came into contact with it and rapidly spread across the globe. To the scientist’s surprise, however," +
+            " everyone survived this superbug and turned into zombies who had a craving for human flesh.\n\n" +
+
+            "Only a handful of humans survived the zombie onslaught. Now it is up to them to travel to the vault and acquire the antidote to revert" +
+            " all the zombies back to humans. But they best beware; hordes of zombies will stop at nothing to keep them from the cure! " +
+            "The fate of humanity is in their hands…\n";
+
+        textYPos += 1;
+
+    }
+    void GameStartAnims()
+    {
+        // Turn off start messsage
+        gameStartText.color = Color.Lerp(gameStartText.color, Color.clear, Time.deltaTime);
+
+        // Turn off start image
+        startImage.color = Color.Lerp(startImage.color, Color.clear, Time.deltaTime);
+
+        // Turn on stage text
+        Color temp = stageText.color;
+        temp.a = 1f;
+        stageText.color = Color.Lerp(stageText.color, temp, Time.deltaTime);
+
+        // Turn on  zombies left text
+        temp = zombiesLeftText.color;
+        temp.a = 1f;
+        zombiesLeftText.color = Color.Lerp(zombiesLeftText.color, temp, Time.deltaTime);
+
+        // Turn on stats text
+        temp = statsText.color;
+        temp.a = 1f;
+        statsText.color = Color.Lerp(statsText.color, temp, Time.deltaTime);
+
     }
 
     // Spawn zombie one at a time at varying (increasing) distances
@@ -281,8 +374,7 @@ public class GameController : MonoBehaviour
         spawnTimer += Time.deltaTime;
         if (spawnTimer >= spawnTime)
         {
-            adjustZombieSpeed(0.001f);
-            adjustSpawnTime(0f);
+
             enemManager.Spawn(loc, zombieMov, true, zombieSpeed);
 
             // Reset timer
@@ -291,18 +383,29 @@ public class GameController : MonoBehaviour
 
 
         // Change the speed of each zombie active in the scene
-        enemManager.setSpeed(zombieSpeed);
+        //enemManager.setSpeed(zombieSpeed);
 
-        capacityTimer += Time.deltaTime;
+        /*capacityTimer += Time.deltaTime;
         if (capacityTimer >= capacityTime)
         {
             enemManager.incMaxActiveZombies();
             capacityTimer = 0f;
-        }
+        }*/
 
-        /*// Check if we should go back to tutorial stage
-        if (condition)
+        MLTimer += Time.deltaTime;
+        if (MLTimer >= MLTime)
         {
+            adjustZombieSpeed(0.001f);
+            adjustSpawnTime(0f);
+            enemManager.incMaxActiveZombies();
+
+            //Reset timer
+            MLTimer = 0f;
+        }
+        // Check if we should go back to tutorial stage
+        /*if (ML Condition)
+        {
+            enemManager.DestroyAllZombies();
             Cur_State = (int)State.Stage1;
             ZombiesLeft = 9;
         }*/
@@ -315,13 +418,29 @@ public class GameController : MonoBehaviour
     {
         // Begin Timer
         restartTimer += Time.deltaTime;
-
+        GameOverAnims();
         // Once restartDelay has elapsed
         if (restartTimer >= restartDelay)
         {
             // Load currently loaded level
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
+    }
+
+    void GameOverAnims()
+    {
+        // Turn off zombies left text
+        zombiesLeftText.color = Color.Lerp(zombiesLeftText.color, Color.clear, Time.deltaTime);
+        stageText.color = Color.Lerp(stageText.color, Color.clear, Time.deltaTime);
+       
+        Color temp = gameOverText.color;
+        temp.a = 1f;
+        gameOverText.color = Color.Lerp(gameOverText.color, temp, Time.deltaTime);
+
+        temp = startImage.color;
+        temp.a = 1f;
+        startImage.color = Color.Lerp(startImage.color, temp, Time.deltaTime);
+
     }
 
     void adjustZombieSpeed(float amt)
