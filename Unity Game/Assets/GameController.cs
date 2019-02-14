@@ -13,8 +13,9 @@ public class GameController : MonoBehaviour
     //////////////////////////////////////////////////////////////////////////////////
     public Text stageText;              // Displays current stage of tutorial stage
     public Text gameStartText;          // Displays start message
-    public Text gameOverText;           // /Dispalys game over 
+    public Text gameOverText;           // Displays game over 
     public Text zombiesLeftText;        // Displays number of zombies left
+    public Text timeText;               // Displays survival time
     public Image startImage;            // Background image
     public float restartDelay = 2f;     // How long it takes before we restart the game
     public enum ZombieLocation { Near, Middle, Far, Left, Right, FarLeft, FarRight }; // Locations to spawn zombies
@@ -54,6 +55,7 @@ public class GameController : MonoBehaviour
     private float narrativeTime = 34f;  // Time to stay in narrative function
     private float MLTimer;              // Timer for when to call machine learning function
     private float MLTime = 20f;         // How often to call machine learning function
+    private float refGlobalTime;        // Taking the difference between this and curGlobalTime yields time elapsed
     private bool start = false;         // Ensures that game does not start until the player presses return
     private bool narrativeDone = false; // Indicates the narrative is done playing
     private int textYPos = -600;        // Start position of narrative text
@@ -130,28 +132,37 @@ public class GameController : MonoBehaviour
             CheckIfPaused();
         }
 
-        // Can skip tutorial stages by pressing return key
+        // Display current time
+        if (Cur_State != (int)State.GameStart)
+        {
+            DisplayTime();
+        }
 
+        // Can skip tutorial stages by pressing 'k' key
         if (Cur_State == (int)State.Stage1 || Cur_State == (int)State.Stage2 || Cur_State == (int)State.Stage3)
         {
-            if (Input.GetKeyDown("return"))
+            if (Input.GetKeyDown("k"))
             {
                 enemManager.DestroyAllZombies();
-                Cur_State = (int)State.FreePlay;
+                refGlobalTime = Time.time;
+                Cur_State = (int)State.FreePlay; 
+            }
+        }
+
+        // Can go back to tutorial stage by pressing 'k' key
+        if (Cur_State == (int)State.FreePlay)
+        {
+            if (Input.GetKeyDown("l"))
+            {
+                enemManager.DestroyAllZombies();
+                refGlobalTime = Time.time;
+                Cur_State = (int)State.Stage1;
             }
         }
 
         // Display stage text and zombies left text
-        if (Cur_State != (int)State.FreePlay)
-        {
-            stageText.text = "Tutorial Stage " + Cur_State + "/3";
-            zombiesLeftText.text = "Zombies Left: " + ZombiesLeft;
-        }
-        else
-        {
-            stageText.text = "Survival Mode";
-            zombiesLeftText.text = "Active Zombies: " + EnemyManager.activeZombies;
-        }
+        DisplayStage();
+
     }
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -184,6 +195,7 @@ public class GameController : MonoBehaviour
             startTimer += Time.deltaTime;
             if (startTimer >= startTime)
             {
+                refGlobalTime = Time.time;
                 Cur_State = (int)State.Stage1;
                 // Reset timer and start
                 startTimer = 0f;
@@ -230,7 +242,7 @@ public class GameController : MonoBehaviour
         temp.a = 1f;
         stageText.color = Color.Lerp(stageText.color, temp, Time.deltaTime);
 
-        // Turn on  zombies left text
+        // Turn on zombies left text
         temp = zombiesLeftText.color;
         temp.a = 1f;
         zombiesLeftText.color = Color.Lerp(zombiesLeftText.color, temp, Time.deltaTime);
@@ -239,6 +251,11 @@ public class GameController : MonoBehaviour
         temp = statsText.color;
         temp.a = 1f;
         statsText.color = Color.Lerp(statsText.color, temp, Time.deltaTime);
+
+        // Turn on time text
+        temp = timeText.color;
+        temp.a = 1f;
+        timeText.color = Color.Lerp(timeText.color, temp, Time.deltaTime);
 
     }
 
@@ -334,6 +351,7 @@ public class GameController : MonoBehaviour
         }
         else if (ZombiesLeft == 0)
         {
+            refGlobalTime = Time.time;
             Cur_State = (int)State.FreePlay;
             return;
         }
@@ -416,6 +434,7 @@ public class GameController : MonoBehaviour
         /*if (ML Condition)
         {
             enemManager.DestroyAllZombies();
+            refGlobalTime = Time.time;
             Cur_State = (int)State.Stage1;
             ZombiesLeft = 9;
         }*/
@@ -493,6 +512,49 @@ public class GameController : MonoBehaviour
             pauseText.enabled = false;
             UDPInterface.moveBowValid = true;
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays Survival Time
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayStage()
+    {
+        if (Cur_State != (int)State.FreePlay)
+        {
+            stageText.text = "Tutorial Stage " + Cur_State + "/3";
+            zombiesLeftText.text = "Zombies Left: " + ZombiesLeft;
+        }
+        else
+        {
+            stageText.text = "Survival Mode";
+            zombiesLeftText.text = "Active Zombies: " + EnemyManager.activeZombies;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays Survival Time
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayTime()
+    {
+        // Compute time elapsed
+        int timeElapsed = (int)(Time.time - refGlobalTime);
+
+        // Holds game mode
+        string mode;
+
+        // Get game mode
+        if (Cur_State == (int)State.FreePlay)
+        {
+            mode = "Survival Time: ";
+
+        }
+        else 
+        {
+            mode = "Tutorial Time: ";
+        }
+
+        // Display current time
+        timeText.text = mode + timeElapsed + " seconds";
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
