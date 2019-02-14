@@ -5,68 +5,74 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.AI;
 
-// Description: 
-// 
 public class GameController : MonoBehaviour
 {
 
-    // Public variables
-    public Animator anim;    // Reference to UI animator
-    public Text stageText;   // Displays current stage of tutorial stage
-    public Text gameStartText; // Displays start message
-    public Text gameOverText;  // /Dispalys game over 
-    public Text zombiesLeftText; // Displays number of zombies left
-    public Image startImage;     // Background image
-    public float restartDelay = 2f;   // How long it takes before we restart the game
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Public Variables
+    //////////////////////////////////////////////////////////////////////////////////
+    public Text stageText;              // Displays current stage of tutorial stage
+    public Text gameStartText;          // Displays start message
+    public Text gameOverText;           // /Dispalys game over 
+    public Text zombiesLeftText;        // Displays number of zombies left
+    public Image startImage;            // Background image
+    public float restartDelay = 2f;     // How long it takes before we restart the game
     public enum ZombieLocation { Near, Middle, Far, Left, Right, FarLeft, FarRight }; // Locations to spawn zombies
-    public EnemyManager enemManager;  // Reference to enemy manager script
-    public bool zombieMov = false;    // Indicates whether the zombie to be spawned can move
-    public int maxShots = 5;          // Maximum shots a player can take before going back a stage
-    public Text pauseText;
-    public Text hitText;                    // Displays "Hit!" when zombie is hit
-    public Text statsText;            // Displays user's statistics
-    public ZombieLocation loc;        // Where to spawn zombie
-    public ZombieLocation resLoc;     // Where to respawn zombie
-    public float zombieSpeed = 0.001f;         // Speed of the zombies
-    public PlayerHealth playerHealth; // Get player's health
-    public Transform player; // Reference to transform of the player
+    public EnemyManager enemManager;    // Reference to enemy manager script
+    public bool zombieMov = false;      // Indicates whether the zombie to be spawned can move
+    public int maxShots = 5;            // Maximum shots a player can take before going back a stage
+    public Text pauseText;              // Indicates game is paused
+    public Text hitText;                // Displays "Hit!" when zombie is hit
+    public Text statsText;              // Displays user's statistics
+    public ZombieLocation loc;          // Where to spawn zombie
+    public ZombieLocation resLoc;       // Where to respawn zombie
+    public float zombieSpeed = 0.001f;  // Speed of the zombies
+    public PlayerHealth playerHealth;   // Get player's health
+    public Transform player;            // Reference to transform of the player
 
-    public static int Cur_State;    // Indicates current state of tutorial scene
-    public static int arrowHits = 0;   // Number of arrow hits
-    public static int arrowFires = 0;  // Number of arrow fires
-    public static int bodyShots = 0;   // Number of body shots
-    public static int headShots = 0;   // Number of head shots
-    public static int ZombiesLeft;     // Number of zombies left for tutorial stage
+    public static int Cur_State;        // Indicates current state of tutorial scene
+    public static int arrowHits = 0;    // Number of arrow hits
+    public static int arrowFires = 0;   // Number of arrow fires
+    public static int bodyShots = 0;    // Number of body shots
+    public static int headShots = 0;    // Number of head shots
+    public static int ZombiesLeft;      // Number of zombies left for tutorial stage
     public static int zombiesDestroyed = 0; // Total number of zombies destroyed
     public static int tutArrowFires = 0;    // Number of arrow fires in tutorial
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Private Variables
+    //////////////////////////////////////////////////////////////////////////////////
+    private enum State { GameStart, Stage1, Stage2, Stage3, Multiplayer, FreePlay, GameOver };  // Different states for gameplay
+    private float restartTimer;         // After game is over, time before scene is reloaded
+    private float spawnTimer;           // Timer for spawning zombies
+    private float spawnTime = 4f;       // Time between zombie spawns in free play mode
+    private float capacityTimer;        // Timer for increasing capacity of zombies in scene
+    private float capacityTime = 5f;    // Time between increasing capacity of zombies
+    private float startTimer;           // Timer for staying in gamestart state
+    private float startTime = 3f;       // Time to stay in gamestart state, needed to fade screen
+    private float narrativeTimer;       // Timer for staying in narrative function
+    private float narrativeTime = 34f;  // Time to stay in narrative function
+    private float MLTimer;              // Timer for when to call machine learning function
+    private float MLTime = 20f;         // How often to call machine learning function
+    private bool start = false;         // Ensures that game does not start until the player presses return
+    private bool narrativeDone = false; // Indicates the narrative is done playing
+    private int textYPos = -600;        // Start position of narrative text
 
-    // Private variables
-    private enum State { GameStart, Stage1, Stage2, Stage3, Stage4, FreePlay, GameOver };  // Different states for tutorial 
-    private float restartTimer;       // After game is over, time before scene is reloaded
-    private float spawnTimer;         // Timer for spawning zombies
-    private float spawnTime = 4f;     // Time between zombie spawns in free play mode
-    private float capacityTimer;      // Timer for increasing capacity of zombies in scene
-    private float capacityTime = 5f;  // Time between increasing capacity of zombies
-    private float startTimer;         // Timer for staying in gamestart state
-    private float startTime = 3f;          // Time to stay in gamestart state
-    private float narrativeTimer;
-    private float narrativeTime = 34f;
-    private float MLTimer;
-    private float MLTime = 20f;
-    private bool start = false;
-    private bool narrativeDone = false;
-    private int textYPos = -600;
-
-
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
+    //////////////////////////////////////////////////////////////////////////////////
     void Start()
     {
+        // Start game in gamestart state
         Cur_State = (int)State.GameStart;
+
         // 9 total zombies to kill in tutorial stage
         ZombiesLeft = 9;
 
+        // Get reference to the player
         player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // Initialize all timers to 0
         restartTimer = 0f;
         spawnTimer = 0f;
         capacityTimer = 0f;
@@ -79,16 +85,20 @@ public class GameController : MonoBehaviour
         resLoc = ZombieLocation.Near;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Update is called once per frame
+    //////////////////////////////////////////////////////////////////////////////////
     void Update()
     {
+
+        // If player is dead, end game
         if (playerHealth.currentHealth <= 0)
         {
             Cur_State = (int)State.GameOver;
         }
 
 
-        // Enter stage based on current state
+        // Enter game mode based on current state
         switch (Cur_State)
         {
             case (int)State.GameStart:
@@ -103,8 +113,8 @@ public class GameController : MonoBehaviour
             case (int)State.Stage3:
                 Stage3();
                 break;
-            case (int)State.Stage4:
-                Stage4();
+            case (int)State.Multiplayer:
+                Multiplayer();
                 break;
             case (int)State.FreePlay:
                 FreePlay();
@@ -120,13 +130,21 @@ public class GameController : MonoBehaviour
             CheckIfPaused();
         }
 
-        // Display text
+        // Can skip tutorial stages by pressing return key
+
+        if (Cur_State == (int)State.Stage1 || Cur_State == (int)State.Stage2 || Cur_State == (int)State.Stage3)
+        {
+            if (Input.GetKeyDown("return"))
+            {
+                enemManager.DestroyAllZombies();
+                Cur_State = (int)State.FreePlay;
+            }
+        }
+
+        // Display stage text and zombies left text
         if (Cur_State != (int)State.FreePlay)
         {
-            // Display stage number
             stageText.text = "Tutorial Stage " + Cur_State + "/3";
-
-            // Display number of zombies left
             zombiesLeftText.text = "Zombies Left: " + ZombiesLeft;
         }
         else
@@ -136,28 +154,29 @@ public class GameController : MonoBehaviour
         }
     }
 
-
-    // Game start screen
-    // Begins stage 1 when the return button is pressed or the user says "start"
+    //////////////////////////////////////////////////////////////////////////////////
+    // Game Start Screen and Auxillary Animation Functions
+    //////////////////////////////////////////////////////////////////////////////////
     void GameStart()
     {
+        // Begins narrative when return button is pressed or the user says "start"
         if (Input.GetKeyDown("return") || !UDPInterface.isPaused)
         {
             start = true;
-            //narrativeDone = true; // Testing
         }
 
+        // Narrative ends narrativeTime later or when the return button is pressed
         if (start == true && narrativeDone == false)
         {
             NarrativeAnims();
             narrativeTimer += Time.deltaTime;
-            if (narrativeTimer >= narrativeTime)
+            if (narrativeTimer >= narrativeTime || Input.GetKeyDown("return"))
             {
                 narrativeDone = true;
-
             }
         }
 
+        // When narrative ends, turn off graphics by calling GameStartAnims
         if (narrativeDone == true)
         {
 
@@ -165,9 +184,6 @@ public class GameController : MonoBehaviour
             startTimer += Time.deltaTime;
             if (startTimer >= startTime)
             {
-                // Cause transition in UI animator
-
-                //anim.SetTrigger("GameStart");
                 Cur_State = (int)State.Stage1;
                 // Reset timer and start
                 startTimer = 0f;
@@ -226,6 +242,9 @@ public class GameController : MonoBehaviour
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Tutorial Stages
+    //////////////////////////////////////////////////////////////////////////////////
     // Spawn zombie one at a time at varying (increasing) distances
     void Stage1()
     {
@@ -255,8 +274,6 @@ public class GameController : MonoBehaviour
         // If you successfully kill all zombies, call Stage2 function
         else if (ZombiesLeft == 6)
         {
-            // Cause transition in UI animator
-            anim.SetTrigger("Stage1Complete");
             Cur_State = (int)State.Stage2;
             return;
         }
@@ -286,8 +303,6 @@ public class GameController : MonoBehaviour
         }
         else if (ZombiesLeft == 3)
         {
-            // Cause transition in UI animator
-            anim.SetTrigger("Stage2Complete");
             Cur_State = (int)State.Stage3;
             return;
         }
@@ -319,8 +334,6 @@ public class GameController : MonoBehaviour
         }
         else if (ZombiesLeft == 0)
         {
-            // Cause transition in UI animator
-            anim.SetTrigger("Stage3Complete");
             Cur_State = (int)State.FreePlay;
             return;
         }
@@ -337,8 +350,11 @@ public class GameController : MonoBehaviour
             enemManager.Spawn(loc, zombieMov, false, zombieSpeed);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Multiplayer Mode
+    //////////////////////////////////////////////////////////////////////////////////
     // Spawns zombies in 4 different locations
-    void Stage4()
+    void Multiplayer()
     {
         zombieMov = true;
         if (UDPInterface.isValidQuadrant)
@@ -354,22 +370,16 @@ public class GameController : MonoBehaviour
             // UDPInterface.isValidQuadrant = false;
             enemManager.Spawn(loc, zombieMov, false, zombieSpeed);
         }
-        if (ZombiesLeft == 0)
-        {
-            Cur_State = (int)State.FreePlay;
-            zombiesDestroyed = 0;
-        }
-
-
-
-        //    anim.SetTrigger("Stage4Complete");
-
-
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Survival Mode
+    //////////////////////////////////////////////////////////////////////////////////
     // Free play mode where zombies get progressively stronger and faster
     void FreePlay()
     {
+        zombieMov = true;
+
         // Spawn zombie every spawnTime seconds
         spawnTimer += Time.deltaTime;
         if (spawnTimer >= spawnTime)
@@ -395,8 +405,8 @@ public class GameController : MonoBehaviour
         MLTimer += Time.deltaTime;
         if (MLTimer >= MLTime)
         {
-            adjustZombieSpeed(0.001f);
-            adjustSpawnTime(0f);
+            AdjustZombieSpeed(0.001f);
+            AdjustSpawnTime(0f);
             enemManager.incMaxActiveZombies();
 
             //Reset timer
@@ -412,7 +422,34 @@ public class GameController : MonoBehaviour
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Change Game Parameters
+    //////////////////////////////////////////////////////////////////////////////////
+    void AdjustZombieSpeed(float amt)
+    {
+        // Ensure zombie speed does not fall below 0
+        if (zombieSpeed + amt <= 0)
+        {
+            return;
+        }
+        // Increment zombie speed
+        zombieSpeed += amt;
 
+    }
+
+    void AdjustSpawnTime(float amt)
+    {
+        // Ensure spawn time does not fall below 0
+        if (spawnTime + amt <= 0)
+        {
+            return;
+        }
+        spawnTime += amt;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Game Over Screen and Auxillary Animation Functions
+    //////////////////////////////////////////////////////////////////////////////////
     // Reloads the game after restartDelay has elapsed
     void GameOver()
     {
@@ -443,29 +480,9 @@ public class GameController : MonoBehaviour
 
     }
 
-    void adjustZombieSpeed(float amt)
-    {
-        // Ensure zombie speed does not fall below 0
-        if (zombieSpeed + amt <= 0)
-        {
-            return;
-        }
-        // Increment zombie speed
-        zombieSpeed += amt;
-
-    }
-
-    void adjustSpawnTime(float amt)
-    {
-        if (spawnTime + amt <= 0)
-        {
-            return;
-        }
-        spawnTime += amt;
-
-    }
-
-
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Check if Player Pauses Game
+    //////////////////////////////////////////////////////////////////////////////////
     void CheckIfPaused()
     {
         if (UDPInterface.isPaused || Input.GetKeyDown("y"))
@@ -478,6 +495,9 @@ public class GameController : MonoBehaviour
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays Hit Text
+    //////////////////////////////////////////////////////////////////////////////////
     public void DisplayHit(string t)
     {
         hitText.text = t;
@@ -486,15 +506,18 @@ public class GameController : MonoBehaviour
         hitText.color = temp;
         Invoke("HitTextOff", 1f);
     }
-    void HitTextOff()
+
+    private void HitTextOff()
     {
         Color temp = hitText.color;
         temp.a = 0;
         hitText.color = temp;
-
     }
 
-   public void DisplayStats()
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays Player Statistics
+    //////////////////////////////////////////////////////////////////////////////////
+    public void DisplayStats()
     {
 
         // Display statistics
