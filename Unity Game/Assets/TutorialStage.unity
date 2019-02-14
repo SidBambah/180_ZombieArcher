@@ -1753,7 +1753,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a59c1cd17d53824db100a11bbaed60f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerName: Sid
+  tutCont: {fileID: 0}
+  enemManager: {fileID: 0}
+  playerSkill: 0
+  playerName: Tom
   dbPath: 
 --- !u!4 &91393184
 Transform:
@@ -6048,6 +6051,7 @@ MonoBehaviour:
   zombieSpeed: 0.1
   playerHealth: {fileID: 1865449916}
   player: {fileID: 0}
+  ML: {fileID: 0}
 --- !u!4 &330977653
 Transform:
   m_ObjectHideFlags: 0
@@ -13640,7 +13644,7 @@ MonoBehaviour:
   xmin: -0.5
   xmax: 6
   zmin: -6
-  zmax: 3
+  zmax: 1.5
   maxActiveZombies: 2
 --- !u!4 &845836058
 Transform:

@@ -31,6 +31,7 @@ public class GameController : MonoBehaviour
     public float zombieSpeed = 0.001f;  // Speed of the zombies
     public PlayerHealth playerHealth;   // Get player's health
     public Transform player;            // Reference to transform of the player
+    public MachineLearning ML;
 
     public static int Cur_State;        // Indicates current state of tutorial scene
     public static int arrowHits = 0;    // Number of arrow hits
@@ -56,12 +57,13 @@ public class GameController : MonoBehaviour
     private float narrativeTimer;       // Timer for staying in narrative function
     private float narrativeTime = 34f;  // Time to stay in narrative function
     private float MLTimer;              // Timer for when to call machine learning function
-    private float MLTime = 20f;         // How often to call machine learning function
+    private float MLTime = 10f;         // How often to call machine learning function
     private float refGlobalTime;        // Taking the difference between this and curGlobalTime yields time elapsed
     private bool start = false;         // Ensures that game does not start until the player presses return
     private bool narrativeDone = false; // Indicates the narrative is done playing
     private int textYPos = -600;        // Start position of narrative text
-    private int killStreakThres = 7;    // Player's kill streak in survival mode
+    private int killStreakThres = 5;    // Player's kill streak in survival mode
+    private int killStreakDefault = 5;  // Default kill streak threshold
     private int powerupsAvailable = 0;  // Number of nukes player has
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -74,6 +76,9 @@ public class GameController : MonoBehaviour
 
         // 9 total zombies to kill in tutorial stage
         ZombiesLeft = 9;
+
+        // Get reference to machine learning script
+        ML = GameObject.FindWithTag("MachineLearning").GetComponent<MachineLearning>();
 
         // Get reference to the player
         player = GameObject.FindGameObjectWithTag("Player").transform;
@@ -89,6 +94,8 @@ public class GameController : MonoBehaviour
         // Initialize location
         loc = ZombieLocation.Near;
         resLoc = ZombieLocation.Near;
+
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -150,6 +157,7 @@ public class GameController : MonoBehaviour
                 enemManager.DestroyAllZombies();
                 refGlobalTime = Time.time;
                 killStreak = 0;
+                killStreakThres = killStreakDefault;
                 Cur_State = (int)State.FreePlay; 
             }
         }
@@ -369,6 +377,7 @@ public class GameController : MonoBehaviour
         {
             refGlobalTime = Time.time;
             killStreak = 0;
+            killStreakThres = killStreakDefault;
             Cur_State = (int)State.FreePlay;
             return;
         }
@@ -429,39 +438,32 @@ public class GameController : MonoBehaviour
 
         // Change the speed of each zombie active in the scene
         //enemManager.setSpeed(zombieSpeed);
-
-        /*capacityTimer += Time.deltaTime;
-        if (capacityTimer >= capacityTime)
-        {
-            enemManager.incMaxActiveZombies();
-            capacityTimer = 0f;
-        }*/
+        bool repeatTutorial = false;
 
         MLTimer += Time.deltaTime;
         if (MLTimer >= MLTime)
         {
-            AdjustZombieSpeed(0.001f);
-            AdjustSpawnTime(0f);
-            enemManager.incMaxActiveZombies();
+            repeatTutorial = ML.statsReact(ML.name, ML.dbPath);
 
             //Reset timer
             MLTimer = 0f;
         }
+
         // Check if we should go back to tutorial stage
-        /*if (ML Condition)
+        if (repeatTutorial == true)
         {
             enemManager.DestroyAllZombies();
             refGlobalTime = Time.time;
             Cur_State = (int)State.Stage1;
             ZombiesLeft = 9;
-        }*/
+        }
 
         // Check if you unlocked a powerup
         if (killStreak >= killStreakThres)
         {
             // Unlock a nuke and increment threshold
             powerupsAvailable += 1;
-            killStreakThres += 7;
+            killStreakThres += 5;
 
         }
 
@@ -490,7 +492,7 @@ public class GameController : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////// 
     // Change Game Parameters
     //////////////////////////////////////////////////////////////////////////////////
-    void AdjustZombieSpeed(float amt)
+    public void AdjustZombieSpeed(float amt)
     {
         // Ensure zombie speed does not fall below 0
         if (zombieSpeed + amt <= 0)
@@ -502,7 +504,7 @@ public class GameController : MonoBehaviour
 
     }
 
-    void AdjustSpawnTime(float amt)
+    public void AdjustSpawnTime(float amt)
     {
         // Ensure spawn time does not fall below 0
         if (spawnTime + amt <= 0)

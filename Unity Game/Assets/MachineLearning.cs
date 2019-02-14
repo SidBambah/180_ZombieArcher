@@ -5,14 +5,28 @@ using System.IO;
 
 public class MachineLearning : MonoBehaviour
 {
-	//Define the player and database location
-	public string playerName = "Sid";
+
+    public GameController tutCont;      // Reference to the tutorial controller
+    public EnemyManager enemManager;    // Reference to enemy manager script
+    public enum SkillState { Novice, Amateur, Advanced, Sharpshooter };  // Different states for gameplay
+    public int playerSkill;
+
+    private float speedIncrease;
+    private float spawnTimeDecrease;
+    private bool activeZombieIncrease;
+    private bool repeatTutorial;
+
+    //Define the player and database location
+    public string playerName;
 	public string dbPath;
 	
     // Start is called before the first frame update
     void Start()
     {
-		dbPath = "URI=file:" + Application.dataPath + "/ML_Database.db";
+        tutCont = GameObject.FindWithTag("GameController").GetComponent<GameController>();
+        enemManager = GameObject.FindWithTag("EnemyManager").GetComponent<EnemyManager>();
+
+        dbPath = "URI=file:" + Application.dataPath + "/ML_Database.db";
 		CreateSchema(dbPath);
 		checkUser(playerName, dbPath);
 		double[] arr = getPercents(playerName, dbPath);
@@ -38,7 +52,7 @@ public class MachineLearning : MonoBehaviour
 								  ");";
 
 				var result = cmd.ExecuteNonQuery();
-				Debug.Log("create schema: " + result);
+				//Debug.Log("create schema: " + result);
 			}
 		}
 	}
@@ -56,7 +70,7 @@ public class MachineLearning : MonoBehaviour
 					Value = player
 				});
 				var result = cmd.ExecuteNonQuery();
-				Debug.Log("Checked player");
+				//Debug.Log("Checked player");
 			}
 		}
 	}
@@ -77,7 +91,7 @@ public class MachineLearning : MonoBehaviour
 					Value = player
 				});
 				var result = cmd.ExecuteNonQuery();
-				Debug.Log("Headshot!");
+				//Debug.Log("Headshot!");
 			}
 		}
 		//Re-calculate percentages
@@ -98,7 +112,7 @@ public class MachineLearning : MonoBehaviour
 					Value = player
 				});
 				var result = cmd.ExecuteNonQuery();
-				Debug.Log("Bodyshot!");
+				//Debug.Log("Bodyshot!");
 			}
 		}
 		//Re-calculate percentages
@@ -119,7 +133,7 @@ public class MachineLearning : MonoBehaviour
 					Value = player
 				});
 				var result = cmd.ExecuteNonQuery();
-				Debug.Log("Missed shot!");
+				//Debug.Log("Missed shot!");
 			}
 		}
 		//Re-calculate percentages
@@ -139,7 +153,7 @@ public class MachineLearning : MonoBehaviour
 					Value = player
 				});
 				var result = cmd.ExecuteNonQuery();
-				Debug.Log("Calculated statistics");
+				//Debug.Log("Calculated statistics");
 			}
 		}
 	}
@@ -169,25 +183,99 @@ public class MachineLearning : MonoBehaviour
 				}
 			}
 		}
-		//Fill and return array with all of the neccessary statistics.
-		double[] arr = {hitpercent, misspercent, headshotpercent};
+
+        //Fill and return array with all of the neccessary statistics.
+        double[] arr = {hitpercent, misspercent, headshotpercent};
 		return arr;
 	}
 	
-	public void statsReact (string player, string dbPath){
+	public bool statsReact (string player, string dbPath){
 		//Main machine learning done here
 		
 		//Extract player statistics
-		double[] stats = getPercents(player, dbPath);
+		double[] stats = getPercents(playerName, dbPath);
 		double hitpercent = stats[0];
 		double misspercent = stats[1];
 		double headshotpercent = stats[2];
-		
-		//React to player statistics
-		
-		//REACT HERE
-		
+
+        Debug.Log("Miss percent: " + misspercent);
+        Debug.Log("Hit percent: " + hitpercent);
+        Debug.Log("Head shot percent: " + headshotpercent);
+
+        //Debug.Log("Miss percent: " + misspercent);
+        //Debug.Log("Hit percent: " + hitpercent);
+        //Debug.Log("Head shot percent: " + headshotpercent);
+
+        //REACT HERE
+
+        // Determine player's skill level using two features: misspercent and headshotpercent
+        if (hitpercent < 0.25f)
+        {
+            playerSkill = (int)SkillState.Novice;
+        }
+        else if (hitpercent < 0.5f)
+        {
+            playerSkill = (int)SkillState.Amateur;
+        }
+        else if (hitpercent < 0.75f)
+        {
+            playerSkill = (int)SkillState.Advanced;
+        }
+        else if (hitpercent >= 0.75f && headshotpercent < 0.5f) 
+        {
+            playerSkill = (int)SkillState.Advanced;
+        }
+        else if (hitpercent > 0.75f && headshotpercent >= 0.5f) 
+        {
+            playerSkill = (int)SkillState.Sharpshooter;
+        }
+
+        // Based on player's skill level, change parameters of survival mode
+        switch (playerSkill)
+        {
+            case (int)SkillState.Novice:
+                speedIncrease = 0f;
+                spawnTimeDecrease = 0f;
+                activeZombieIncrease = false;
+                repeatTutorial = true;
+                break;
+            case (int)SkillState.Amateur:
+                speedIncrease = 0.001f;
+                spawnTimeDecrease = 0.10f;
+                activeZombieIncrease = false;
+                repeatTutorial = false;
+                break;
+            case (int)SkillState.Advanced:
+                speedIncrease = 0.002f;
+                spawnTimeDecrease = 0.20f;
+                activeZombieIncrease = true;
+                repeatTutorial = false;
+                break;
+            case (int)SkillState.Sharpshooter:
+                speedIncrease = 0.003f;
+                spawnTimeDecrease = 0.30f;
+                activeZombieIncrease = true;
+                repeatTutorial = false;
+                break;
+
+        }
+
+        // Change parameters of survival mode
+        tutCont.AdjustZombieSpeed(speedIncrease);
+        tutCont.AdjustSpawnTime(-spawnTimeDecrease);
+        if (activeZombieIncrease == true)
+        {
+            enemManager.incMaxActiveZombies();
+        }
+
+
+
+
+
+        Debug.Log((int)playerSkill);
 		Debug.Log("Machine learning done");
+
+        return repeatTutorial;
 		
 	}
     // Update is called once per frame
@@ -196,5 +284,6 @@ public class MachineLearning : MonoBehaviour
         //Run the Machine Learning each frame
 		//Uncomment function below to run MachineLearning
 		//statsReact(playerName, dbPath);
+
     }
 }
