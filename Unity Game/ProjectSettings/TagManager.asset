@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Arrow
   - MachineLearning
+  - EnemyManager
   layers:
   - Default
   - TransparentFX

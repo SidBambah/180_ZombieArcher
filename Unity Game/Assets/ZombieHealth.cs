@@ -83,6 +83,9 @@ public class ZombieHealth : MonoBehaviour {
         // Increment number of zombies killed
         GameController.zombiesDestroyed += 1;
 
+        // Increment killstreak
+        GameController.killStreak += 1;
+
         Invoke("Helper", 2f);
 
         

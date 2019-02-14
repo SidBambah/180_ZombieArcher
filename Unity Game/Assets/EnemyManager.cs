@@ -9,11 +9,13 @@ using UnityEngine.AI;
 // Otherwise, a zombie is spawned randomly out of 3 positions, and in a location 
 // where there is not a zombie
 
-public class EnemyManager : MonoBehaviour {
+public class EnemyManager : MonoBehaviour
+{
 
     // Public variables
     public PlayerHealth playerHealth;  // Reference to player's health
     public GameObject enemy;           // Reference to enemy to make duplicate of
+    public GameObject explosion;       // Reference to explosion prefab
     public Transform[] spawnPoints;    // Location to spawn enemies
     public GameObject[] currentZombie; // reference to current zombie
     public float xmin;                 // Min x value where zombie can spawn
@@ -23,6 +25,7 @@ public class EnemyManager : MonoBehaviour {
 
     // Static variables
     public static GameObject[] zombiesAlive; // reference to each zombie alive
+    public static GameObject[] powerups;
     public static bool[] spotTaken;
     public static int activeZombies;          // Number of zombies in the scene
 
@@ -32,10 +35,12 @@ public class EnemyManager : MonoBehaviour {
     public int maxActiveZombies = 2;
 
     // Use this for initialization
-    void Start () {
-    
+    void Start()
+    {
+
         zombiesAlive = new GameObject[maxZombies];
         spotTaken = new bool[maxZombies];
+        powerups = new GameObject[maxZombies];
 
         activeZombies = 0;
 
@@ -44,12 +49,13 @@ public class EnemyManager : MonoBehaviour {
             spotTaken[k] = false;
         }
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        
-	}
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     // Takes in location to spawn zombie and whether the zombie can move
     public void Spawn(GameController.ZombieLocation loc, bool zombieMove, bool freePlay, float speed)
@@ -155,7 +161,7 @@ public class EnemyManager : MonoBehaviour {
             {
                 Destroy(zombiesAlive[k], 0);
                 spotTaken[k] = false;
-               
+
             }
         }
         activeZombies = 0;
@@ -193,6 +199,27 @@ public class EnemyManager : MonoBehaviour {
         maxActiveZombies -= 1;
 
     }
+
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Blow Up Zombies
+    //////////////////////////////////////////////////////////////////////////////////
+    public void BlowUpZombies()
+    {
+        for (int k = 0; k < maxZombies; k++)
+        {
+            if (spotTaken[k] == true)
+            {
+                Transform temp = zombiesAlive[k].transform;
+                powerups[k] = Instantiate(explosion, temp.position, temp.rotation);
+                Destroy(powerups[k], 3f);
+            }
+
+
+        }
+
+
+
+    }
+
 }
-
-

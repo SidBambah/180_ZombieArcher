@@ -16,6 +16,7 @@ public class GameController : MonoBehaviour
     public Text gameOverText;           // Displays game over 
     public Text zombiesLeftText;        // Displays number of zombies left
     public Text timeText;               // Displays survival time
+    public Text streakText;             // Displays kill streak
     public Image startImage;            // Background image
     public float restartDelay = 2f;     // How long it takes before we restart the game
     public enum ZombieLocation { Near, Middle, Far, Left, Right, FarLeft, FarRight }; // Locations to spawn zombies
@@ -39,6 +40,7 @@ public class GameController : MonoBehaviour
     public static int ZombiesLeft;      // Number of zombies left for tutorial stage
     public static int zombiesDestroyed = 0; // Total number of zombies destroyed
     public static int tutArrowFires = 0;    // Number of arrow fires in tutorial
+    public static int killStreak = 0;   // Number of zombies killed in survival mode
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Private Variables
@@ -59,6 +61,8 @@ public class GameController : MonoBehaviour
     private bool start = false;         // Ensures that game does not start until the player presses return
     private bool narrativeDone = false; // Indicates the narrative is done playing
     private int textYPos = -600;        // Start position of narrative text
+    private int killStreakThres = 7;    // Player's kill streak in survival mode
+    private int powerupsAvailable = 0;  // Number of nukes player has
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
@@ -145,6 +149,7 @@ public class GameController : MonoBehaviour
             {
                 enemManager.DestroyAllZombies();
                 refGlobalTime = Time.time;
+                killStreak = 0;
                 Cur_State = (int)State.FreePlay; 
             }
         }
@@ -162,6 +167,12 @@ public class GameController : MonoBehaviour
 
         // Display stage text and zombies left text
         DisplayStage();
+
+        // Display current kill streak
+        if (Cur_State != (int) State.GameStart)
+        {
+            DisplayStreak();
+        }
 
     }
 
@@ -256,6 +267,11 @@ public class GameController : MonoBehaviour
         temp = timeText.color;
         temp.a = 1f;
         timeText.color = Color.Lerp(timeText.color, temp, Time.deltaTime);
+
+        // Turn on time text
+        temp = streakText.color;
+        temp.a = 1f;
+        streakText.color = Color.Lerp(streakText.color, temp, Time.deltaTime);
 
     }
 
@@ -352,6 +368,7 @@ public class GameController : MonoBehaviour
         else if (ZombiesLeft == 0)
         {
             refGlobalTime = Time.time;
+            killStreak = 0;
             Cur_State = (int)State.FreePlay;
             return;
         }
@@ -439,7 +456,36 @@ public class GameController : MonoBehaviour
             ZombiesLeft = 9;
         }*/
 
+        // Check if you unlocked a powerup
+        if (killStreak >= killStreakThres)
+        {
+            // Unlock a nuke and increment threshold
+            powerupsAvailable += 1;
+            killStreakThres += 7;
+
+        }
+
+        // Check if the player wants to use the a power up
+        if (Input.GetKeyDown("p"))
+        {
+            if (powerupsAvailable >= 1)
+            {
+
+                enemManager.BlowUpZombies();
+                enemManager.DestroyAllZombies();
+
+
+
+                powerupsAvailable -= 1;
+                zombiesDestroyed += EnemyManager.activeZombies;
+
+
+            }
+        }
+
     }
+
+
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Change Game Parameters
@@ -515,7 +561,7 @@ public class GameController : MonoBehaviour
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
-    // Displays Survival Time
+    // Displays Current Stage and Zombies 
     //////////////////////////////////////////////////////////////////////////////////
     private void DisplayStage()
     {
@@ -555,6 +601,26 @@ public class GameController : MonoBehaviour
 
         // Display current time
         timeText.text = mode + timeElapsed + " seconds";
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays Kill Streak
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayStreak()
+    {
+        int streak;
+
+        if (Cur_State == (int)State.FreePlay)
+        {
+            streak = killStreak;
+        }
+        else 
+        {
+            streak = 0;
+        }
+        streakText.text = "Kill Streak: " + streak;
+
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
