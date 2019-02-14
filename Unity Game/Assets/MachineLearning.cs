@@ -2,6 +2,10 @@
 using System.Data;
 using Mono.Data.Sqlite;
 using System.IO;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using System;
 
 public class MachineLearning : MonoBehaviour
 {
@@ -16,6 +20,10 @@ public class MachineLearning : MonoBehaviour
     private bool activeZombieIncrease;
     private bool repeatTutorial;
 
+    // For writing csv
+    private List<string[]> rowData = new List<string[]>();
+
+    public int iteration = 0;
     //Define the player and database location
     public string playerName;
 	public string dbPath;
@@ -23,6 +31,16 @@ public class MachineLearning : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Creating First row of titles manually..
+        string[] rowDataTemp = new string[4];
+        rowDataTemp[0] = "Iteration";
+        rowDataTemp[1] = "Hit Percentage";
+        rowDataTemp[2] = "Head Shot Percentage";
+        rowDataTemp[3] = "Decision";
+
+        rowData.Add(rowDataTemp);
+
+
         tutCont = GameObject.FindWithTag("GameController").GetComponent<GameController>();
         enemManager = GameObject.FindWithTag("EnemyManager").GetComponent<EnemyManager>();
 
@@ -209,11 +227,11 @@ public class MachineLearning : MonoBehaviour
         //REACT HERE
 
         // Determine player's skill level using two features: misspercent and headshotpercent
-        if (hitpercent < 0.25f)
+        if (hitpercent < 0.50f)
         {
             playerSkill = (int)SkillState.Novice;
         }
-        else if (hitpercent < 0.5f)
+        else if (hitpercent < 0.6f)
         {
             playerSkill = (int)SkillState.Amateur;
         }
@@ -248,7 +266,7 @@ public class MachineLearning : MonoBehaviour
             case (int)SkillState.Advanced:
                 speedIncrease = 0.002f;
                 spawnTimeDecrease = 0.20f;
-                activeZombieIncrease = true;
+                activeZombieIncrease = false;
                 repeatTutorial = false;
                 break;
             case (int)SkillState.Sharpshooter:
@@ -270,7 +288,15 @@ public class MachineLearning : MonoBehaviour
 
 
 
+        string[] rowDataTemp = new string[4];
+        rowDataTemp[0] = "" + iteration; 
+        rowDataTemp[1] = "" + hitpercent;
+        rowDataTemp[2] = "" + headshotpercent;
+        rowDataTemp[3] = "" + playerSkill;
+        rowData.Add(rowDataTemp);
 
+
+        iteration += 1;
 
         Debug.Log((int)playerSkill);
 		Debug.Log("Machine learning done");
@@ -285,5 +311,37 @@ public class MachineLearning : MonoBehaviour
 		//Uncomment function below to run MachineLearning
 		//statsReact(playerName, dbPath);
 
+    }
+
+
+
+
+
+    public void Save()
+    {
+    
+
+
+        string[][] output = new string[rowData.Count][];
+
+        for (int i = 0; i < output.Length; i++)
+        {
+            output[i] = rowData[i];
+        }
+
+        int length = output.GetLength(0);
+        string delimiter = ",";
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int index = 0; index < length; index++)
+            sb.AppendLine(string.Join(delimiter, output[index]));
+
+
+        string filePath = Application.dataPath + "/" + playerName + ".csv";
+
+        StreamWriter outStream = System.IO.File.CreateText(filePath);
+        outStream.WriteLine(sb);
+        outStream.Close();
     }
 }

@@ -28,7 +28,7 @@ public class GameController : MonoBehaviour
     public Text statsText;              // Displays user's statistics
     public ZombieLocation loc;          // Where to spawn zombie
     public ZombieLocation resLoc;       // Where to respawn zombie
-    public float zombieSpeed = 0.001f;  // Speed of the zombies
+    public float zombieSpeed = 0.0001f; // Speed of the zombies
     public PlayerHealth playerHealth;   // Get player's health
     public Transform player;            // Reference to transform of the player
     public MachineLearning ML;
@@ -57,7 +57,7 @@ public class GameController : MonoBehaviour
     private float narrativeTimer;       // Timer for staying in narrative function
     private float narrativeTime = 34f;  // Time to stay in narrative function
     private float MLTimer;              // Timer for when to call machine learning function
-    private float MLTime = 10f;         // How often to call machine learning function
+    private float MLTime = 3f;         // How often to call machine learning function
     private float refGlobalTime;        // Taking the difference between this and curGlobalTime yields time elapsed
     private bool start = false;         // Ensures that game does not start until the player presses return
     private bool narrativeDone = false; // Indicates the narrative is done playing
@@ -65,6 +65,7 @@ public class GameController : MonoBehaviour
     private int killStreakThres = 5;    // Player's kill streak in survival mode
     private int killStreakDefault = 5;  // Default kill streak threshold
     private int powerupsAvailable = 0;  // Number of nukes player has
+    private int saveCSV = 60;
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
@@ -603,6 +604,12 @@ public class GameController : MonoBehaviour
 
         // Display current time
         timeText.text = mode + timeElapsed + " seconds";
+
+        //FIX
+        if (timeElapsed >= saveCSV)
+        {
+            ML.Save();
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
