@@ -10,7 +10,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include "IMU.c"
-#include "quaternion.h"
+
 #define DT 0.025         // [s/loop] loop period in sec
 #define AA 0.97         // complementary filter constant
 
@@ -19,7 +19,7 @@
 #define RAD_TO_DEG 57.29578
 #define M_PI 3.14159265358979323846
 
-#define THRES_A 10000 // Raw Acc Noise Floor
+#define THRES_A 150 // Raw Acc Noise Floor
 #define THRES_G 80  // Raw Gyr Noise Floor
 
 // System constants
@@ -35,12 +35,12 @@
 ///////////////MODIFY FOR EVERY USE////////////////////
 ///////////////////////////////////////////////////////
 //Mag Calibration Values
-#define magXmax 1859
-#define magYmax 1347
-#define magZmax 980
-#define magXmin -455
-#define magYmin -945
-#define magZmin -1168
+#define magXmax 2021
+#define magYmax 1555
+#define magZmax 960
+#define magXmin -254
+#define magYmin -532
+#define magZmin -1136
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -76,6 +76,7 @@ void inline filterUpdateAHRS(float w_x, float w_y, float w_z, float a_x, float a
 float InvSqrt(float x); // Used to avoid division by zero in filter
 
 void computeAngles();
+
 
 int main(int argc, char *argv[])
 {
@@ -114,7 +115,7 @@ int main(int argc, char *argv[])
 
   //Values to send to MadgwickAHRS
   float gyr_rate_rad[3] = {0.0f}; // Converted to Radians per second
-  float acc_norm[3] = {0.0f}; // Converted to G
+  float acc_G[3] = {0.0f}; // Converted to G
   float scaledMag[3] = {0.0f}; //After hard iron and soft iron calibration
 
   int startInt;
@@ -167,14 +168,10 @@ int main(int argc, char *argv[])
       g_y = ((int)cg_y[0] + cg_y[1] + cg_y[2] + cg_y[3]) / 4;
       g_z = ((int)cg_z[0] + cg_z[1] + cg_z[2] + cg_z[3]) / 4;
 
-      //a_x = abs(a_x) < THRES_A ? 0 : a_x;
-      //a_y = abs(a_y) < THRES_A ? 0 : a_y;
-      //a_z = abs(a_z) < THRES_A ? 0 : a_z;
-
       //Get rid of small fluctuations
-      a_x = ((a_x>>2)<<2);
-      a_y = ((a_y>>2)<<2);
-      a_z = ((a_z>>2)<<2);
+      a_x = ((a_x>>4)<<4);
+      a_y = ((a_y>>4)<<4);
+      a_z = ((a_z>>4)<<4);
       //Steady State fix
       g_x = abs(g_x) < THRES_G ? 0 : g_x;
       g_y = abs(g_y) < THRES_G ? 0 : g_y;
@@ -196,21 +193,9 @@ int main(int argc, char *argv[])
       //filterUpdate(gyr_rate_rad[0], gyr_rate_rad[1], gyr_rate_rad[2], (float)a_x, (float)a_y, (float)a_z);
       filterUpdateAHRS(gyr_rate_rad[0], gyr_rate_rad[1], gyr_rate_rad[2], (float)a_x, (float)a_y, (float)a_z, (float)magRaw[0], (float)magRaw[1], (float)magRaw[2]);
       computeAngles();
-      quaternion_rotate(0, 0, 16400, SEq_1, SEq_2, SEq_3, SEq_4, &acc_norm[0], &acc_norm[1], &acc_norm[2]);
-      a_x = a_x - (int)(acc_norm[0]);
-      a_y = a_y - (int)(acc_norm[1]);
-      a_z = a_z - (int)(acc_norm[2]);
-      
-      a_x = abs(a_x) < THRES_A ? 0 : a_x;
-      a_y = abs(a_y) < THRES_A ? 0 : a_y;
-      a_z = abs(a_z) < THRES_A ? 0 : a_z;
-      
-      //printf("%7.1f            %7.1f            %7.1f\t", acc_norm[0], acc_norm[1], acc_norm[2]);
-      printf("%5d\t%5d\t%5d\t", a_x, a_y, a_z);
 
-      //fprintf(stdout,"Roll: %8.3f\t Pitch: %8.3f\t Yaw:Z %8.3f\t", madAngles[1]*180/M_PI, madAngles[2]*180/M_PI);
+      //fprintf(stdout,"Roll: %8.3f\t Pitch: %8.3f\t Yaw:Z %8.3f\t", madAngles[0], madAngles[1], madAngles[2]);
       fprintf(stdout,"%.3f,%.3f,%.3f\n", madAngles[0]*180/M_PI, madAngles[1]*180/M_PI, madAngles[2]*180/M_PI);
-      //fprintf(stdout,"Q1:  %7.3f    Q2:  %7.3f    Q3:  %7.3f    Q4:  %7.3f\n", SEq_1, SEq_2, SEq_3, SEq_4);
 
       //Each loop should be at least 20ms.
       while(mymillis() - startInt < (DT*1000))
@@ -218,7 +203,7 @@ int main(int argc, char *argv[])
 	  usleep(100);
       }
 
-      fprintf(stdout,"Loop Time %d\n", mymillis()- startInt);
+      //fprintf(stdout,"Loop Time %d\n", mymillis()- startInt);
       fflush(stdout);
 
     }
