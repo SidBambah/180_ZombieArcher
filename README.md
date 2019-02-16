@@ -35,7 +35,9 @@ Note: It is **critical** to start server before Pi and Unity software to properl
 the UDP sockets. Also, UDP ports 10000 and 10002 must be opened in the firewall.
 
 #### How to Run Unity Game:
-1. Define the IP address of the server in the 
+1. Define the IP address of the server in UDPInterface.cs within the Assets folder
+2. Open project in Unity and allow all assets to be imported
+3. Run game by pressing play icon in Unity
 
 
 Known Issues
