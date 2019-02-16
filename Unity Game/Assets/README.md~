@@ -1,16 +1,16 @@
-Primary C# Scripts for Operation of Unity Game
+## Primary C# Scripts for Operation of Unity Game
 
-Scripts Developed by Group: 
+### Scripts Developed by Group
 Assets/GameController.cs - Controls switching between tutorial stages, multiplayer mode, and survival mode
 Assets/EnemyManager.cs - Instantiates, stores, and destroys zombie gameobjects
 Assets/MachineLearning.cs - Interfaces with database to store player statistics and allows the game to react to stats
 Assets/UDPInterface.cs - Client side of UDP
 
-Scripts that Mirror Unity Website Tutorial
+### Scripts that Mirror Unity Website Tutorial
 Assets/ZombieHealth.cs - Stores zombie health and death functions
 Assets/ZombieAttack.cs - Gives zombie the ability to attack player
 Assets/ZombieMovement.cs - Gives zombie the ability to move
 Assets/PlayerHealth.cs - Stores player health and death functions
 
-Scripts Received from Unity Asset Stores
+### Scripts Received from Unity Asset Stores
 Assets/Longbow/Scripts/LongBowShoot.cs - Handles instantiating arrows, adapted to add particle trail
