@@ -10,25 +10,30 @@ using System;
 public class MachineLearning : MonoBehaviour
 {
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Public Variables
+    //////////////////////////////////////////////////////////////////////////////////
     public GameController tutCont;      // Reference to the tutorial controller
     public EnemyManager enemManager;    // Reference to enemy manager script
     public enum SkillState { Novice, Amateur, Advanced, Sharpshooter };  // Different states for gameplay
-    public int playerSkill;
+    public int playerSkill;             // Player's skill level
+    public int iteration = 0;           // Iteration of decision for player's skill level
+    public string playerName;           // Define the player's name
+    public string dbPath;               // Path to database
 
-    private float speedIncrease;
-    private float spawnTimeDecrease;
-    private bool activeZombieIncrease;
-    private bool repeatTutorial;
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Private Variables
+    //////////////////////////////////////////////////////////////////////////////////
+    private float speedIncrease;        // How much to increase zombie speed
+    private float spawnTimeDecrease;    // How much to decrease zombie speed
+    private bool activeZombieIncrease;  // Whether to increment number of zombies on scene
+    private bool repeatTutorial;        // Whether to repeat the tutorial stage
+    private List<string[]> rowData = new List<string[]>(); // Used tor writing csv file
 
-    // For writing csv
-    private List<string[]> rowData = new List<string[]>();
 
-    public int iteration = 0;
-    //Define the player and database location
-    public string playerName;
-	public string dbPath;
-	
-    // Start is called before the first frame update
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Use this for initialization
+    //////////////////////////////////////////////////////////////////////////////////
     void Start()
     {
         // Creating First row of titles manually..
@@ -49,11 +54,19 @@ public class MachineLearning : MonoBehaviour
 		checkUser(playerName, dbPath);
 		double[] arr = getPercents(playerName, dbPath);
     }
-	
-	//Database Setup Functions
 
-	// Instantiate a new database if one does not already exist
-	public void CreateSchema(string dbPath) {
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Update is called once per frame
+    //////////////////////////////////////////////////////////////////////////////////
+    void Update()
+    {
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Database Setup Functions
+    //////////////////////////////////////////////////////////////////////////////////
+    // Instantiate a new database if one does not already exist
+    public void CreateSchema(string dbPath) {
 		using (var conn = new SqliteConnection(dbPath)) {
 			conn.Open();
 			using (var cmd = conn.CreateCommand()) {
@@ -70,7 +83,6 @@ public class MachineLearning : MonoBehaviour
 								  ");";
 
 				var result = cmd.ExecuteNonQuery();
-				//Debug.Log("create schema: " + result);
 			}
 		}
 	}
@@ -92,11 +104,12 @@ public class MachineLearning : MonoBehaviour
 			}
 		}
 	}
-	
-	//Database Manipulation Functions
-	
-	//Update headshot stats
-	public void headShot(string player, string dbPath) {
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Database Manipulation Functions
+    //////////////////////////////////////////////////////////////////////////////////
+    //Update headshot stats
+    public void headShot(string player, string dbPath) {
 		//Increment headshot counter
 		using (var conn = new SqliteConnection(dbPath)) {
 			conn.Open();
@@ -109,7 +122,6 @@ public class MachineLearning : MonoBehaviour
 					Value = player
 				});
 				var result = cmd.ExecuteNonQuery();
-				//Debug.Log("Headshot!");
 			}
 		}
 		//Re-calculate percentages
@@ -130,7 +142,6 @@ public class MachineLearning : MonoBehaviour
 					Value = player
 				});
 				var result = cmd.ExecuteNonQuery();
-				//Debug.Log("Bodyshot!");
 			}
 		}
 		//Re-calculate percentages
@@ -175,8 +186,11 @@ public class MachineLearning : MonoBehaviour
 			}
 		}
 	}
-		
-	public double[] getPercents (string player, string dbPath){
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Read Data from Database
+    //////////////////////////////////////////////////////////////////////////////////
+    public double[] getPercents (string player, string dbPath){
 		
 		//Define and initialize placeholders for the statistics
 		double hitpercent = 0;
@@ -206,9 +220,11 @@ public class MachineLearning : MonoBehaviour
         double[] arr = {hitpercent, misspercent, headshotpercent};
 		return arr;
 	}
-	
-	public bool statsReact (string player, string dbPath){
-		//Main machine learning done here
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // React to Player Statistics
+    //////////////////////////////////////////////////////////////////////////////////
+    public bool statsReact (string player, string dbPath){
 		
 		//Extract player statistics
 		double[] stats = getPercents(playerName, dbPath);
@@ -220,11 +236,6 @@ public class MachineLearning : MonoBehaviour
         Debug.Log("Hit percent: " + hitpercent);
         Debug.Log("Head shot percent: " + headshotpercent);
 
-        //Debug.Log("Miss percent: " + misspercent);
-        //Debug.Log("Hit percent: " + hitpercent);
-        //Debug.Log("Head shot percent: " + headshotpercent);
-
-        //REACT HERE
 
         // Determine player's skill level using two features: misspercent and headshotpercent
         if (hitpercent < 0.50f)
@@ -283,11 +294,10 @@ public class MachineLearning : MonoBehaviour
         tutCont.AdjustSpawnTime(-spawnTimeDecrease);
         if (activeZombieIncrease == true)
         {
-            enemManager.incMaxActiveZombies();
+            enemManager.IncMaxActiveZombies();
         }
 
-
-
+        // Record inputs and outputs of decision tree to csv file
         string[] rowDataTemp = new string[4];
         rowDataTemp[0] = "" + iteration; 
         rowDataTemp[1] = "" + hitpercent;
@@ -295,33 +305,20 @@ public class MachineLearning : MonoBehaviour
         rowDataTemp[3] = "" + playerSkill;
         rowData.Add(rowDataTemp);
 
-
+        // Increment what decision this was
         iteration += 1;
 
-        Debug.Log((int)playerSkill);
-		Debug.Log("Machine learning done");
-
+        // Return whether the player should repeat the tutorial stage
         return repeatTutorial;
 		
 	}
-    // Update is called once per frame
-    void Update()
-    {
-        //Run the Machine Learning each frame
-		//Uncomment function below to run MachineLearning
-		//statsReact(playerName, dbPath);
 
-    }
-
-
-
-
-
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Write to CSV File
+    //////////////////////////////////////////////////////////////////////////////////
     public void Save()
     {
     
-
-
         string[][] output = new string[rowData.Count][];
 
         for (int i = 0; i < output.Length; i++)

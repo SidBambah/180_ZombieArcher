@@ -9,26 +9,31 @@ using UnityEngine.UI;
 // Removes the zombie from the game environment when the zombie runs out of health
 public class ZombieHealth : MonoBehaviour {
 
-    // Public variables
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Public Variables
+    //////////////////////////////////////////////////////////////////////////////////
     public int damagePerShot = 50;          // How much damage each arrow deals to zombie
     public int startingHealth = 100;        // Starting health of zombie
     public int currentHealth;               // Current health of zombie
     public int scoreValue = 50;             // Score increase for each zombie hit
     public int openIndex;                   // Position taken into zombie manager array
     public float zombieNeckHeight = 1.5f;   // Measured location of neck to determine head shots
-    public GameObject tutCont;      // Reference to the tutorial controller
-    public bool arrowHit = false;
-    public MachineLearning ML;
-
+    public GameObject tutCont;              // Reference to the tutorial controller
+    public bool arrowHit = false;          
+    public MachineLearning ML;              // Reference to ML script
     //public AudioClip deathClip;           // TODO: Sound zombie makes when dies
 
-    // Private variables
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Private Variables
+    //////////////////////////////////////////////////////////////////////////////////
     //AudioSource zombieAudio;            // Audio source for zombie
     //ParticleSystem hitParticles;        // TODO: Will contain blood
     //CapsuleCollider capsuleCollider;    // Capsule collider for zombie
 
 
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
+    //////////////////////////////////////////////////////////////////////////////////
     void Awake () {
         //zombieAudio = GetComponent<AudioSource>();
         //hitParticles = GetComponentInChildren<ParticleSystem>(); // TODO: Find particle system
@@ -37,12 +42,16 @@ public class ZombieHealth : MonoBehaviour {
         tutCont = GameObject.FindWithTag("GameController");
         ML = GameObject.FindWithTag("MachineLearning").GetComponent<MachineLearning>();
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Update is called once per frame
+    //////////////////////////////////////////////////////////////////////////////////
+    void Update () {
 	}
 
-
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Zombie Being Hit By Arrow
+    //////////////////////////////////////////////////////////////////////////////////
     public void ZombieTakeDamage(int amount)
     {
         // TODO: Play zombie audio when zombie is damaged
@@ -50,9 +59,6 @@ public class ZombieHealth : MonoBehaviour {
 
         //Decrement zombie health
         currentHealth -= amount;
-
-        // Increase the player's score
-        ScoreManager.score += amount;
 
         // TODO: Display blood
         //hitParticles.Play();
@@ -65,6 +71,9 @@ public class ZombieHealth : MonoBehaviour {
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Zombie Death and Auxillary Functions
+    //////////////////////////////////////////////////////////////////////////////////
     public void Death()
     {
 
@@ -86,13 +95,13 @@ public class ZombieHealth : MonoBehaviour {
         // Increment killstreak
         GameController.killStreak += 1;
 
+        // Call Helper function 2 seconds later
         Invoke("Helper", 2f);
 
-        
-
-
     }
-    public void Helper()
+
+    // Used to allow delay of destroying zombie after dies
+    private void Helper()
     {
         // Turn off mesh agent component to get zombie to stop following player
         GetComponent<NavMeshAgent>().enabled = false;

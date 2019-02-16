@@ -8,29 +8,38 @@ public class ArrowHit : MonoBehaviour
     // Attached to each arrow object
     // Can use this variable to check whether the arrow has dealt 
     // damage to a zombie
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Public Variables
+    //////////////////////////////////////////////////////////////////////////////////
     public bool arrowHit = false;
     public int damagePerShot = 50;          // How much damage each arrow deals to zombie
     public GameObject tutCont;      // Reference to the tutorial controller
     public MachineLearning ML;
 
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
+    //////////////////////////////////////////////////////////////////////////////////
     void Start()
     {
         tutCont = GameObject.FindWithTag("GameController");
         ML = GameObject.FindWithTag("MachineLearning").GetComponent<MachineLearning>();
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Update is called once per frame
+    //////////////////////////////////////////////////////////////////////////////////
     void Update()
     {
     }
 
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Handles Collision with Zombie
+    //////////////////////////////////////////////////////////////////////////////////
     void OnTriggerEnter(Collider other)
     {
-
-        //if (other.GetType() == typeof(CapsuleCollider))
-        //  {
+   
         // If an arrow is in the capsule collider
         if (other.gameObject.tag == "Enemy")
         {
@@ -72,10 +81,12 @@ public class ArrowHit : MonoBehaviour
                     GameController.arrowHits += 1;
                     tutCont.GetComponent<GameController>().DisplayStats();
 
-
                 }
             }
         }
   
     }
+
+
+
 }

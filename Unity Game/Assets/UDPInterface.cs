@@ -10,7 +10,9 @@ using Newtonsoft.Json.Linq;
 
 public class UDPInterface : MonoBehaviour {
 
-    // Public static variables
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Static Variables
+    //////////////////////////////////////////////////////////////////////////////////
     public static bool moveBowValid = true;
     public static bool isFired = false;
     public static bool isPaused = false; // CHANGED: false for testing
@@ -18,7 +20,9 @@ public class UDPInterface : MonoBehaviour {
     public static int spawnQuadrant = 1;
     public static bool isValidQuadrant = true;
 
-    // Private variables
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Private Variables
+    //////////////////////////////////////////////////////////////////////////////////
     private float previous_force = 0;
     private string HOST = "131.179.19.48"; //Must change this each time
     private int PORT = 10002;
@@ -26,21 +30,28 @@ public class UDPInterface : MonoBehaviour {
 	private IPEndPoint ep;
 
 
-	// Use this for initialization
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Use this for initialization
+    //////////////////////////////////////////////////////////////////////////////////
     void Start () {
 		//Create socket
 		CreateSocket();
 		//Always be on "ON" mode for testing purposes
 		SendSignal("collect");
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Update is called once per frame
+    //////////////////////////////////////////////////////////////////////////////////
+    void Update () {
 		//string responseAsString = GetResponse();
 		//JObject package = JObject.Parse(responseAsString);
         //ProcessPackage(package);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // UDP Setup Function
+    //////////////////////////////////////////////////////////////////////////////////
     private void CreateSocket()
     {
         unity_socket = new UdpClient();
@@ -58,6 +69,9 @@ public class UDPInterface : MonoBehaviour {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Read Response 
+    //////////////////////////////////////////////////////////////////////////////////
     private string GetResponse()
     {
         Byte[] response = unity_socket.Receive(ref ep);
@@ -65,6 +79,9 @@ public class UDPInterface : MonoBehaviour {
         return responseAsString;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Adjust the Bow's position
+    //////////////////////////////////////////////////////////////////////////////////
     private void MoveBow(JObject package)
     {
         float smooth = 5.0f;
@@ -78,6 +95,9 @@ public class UDPInterface : MonoBehaviour {
         transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * smooth);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Parse through Package
+    //////////////////////////////////////////////////////////////////////////////////
     private void ProcessPackage(JObject package)
     {
         if (moveBowValid)

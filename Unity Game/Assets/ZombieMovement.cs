@@ -7,21 +7,32 @@ using UnityEngine.AI;
 // Creates NavMeshAgent so that the zombie can follow the player
 public class ZombieMovement : MonoBehaviour {
 
-    Transform player;           // Get reference to player's position
-    PlayerHealth playerHealth;  // Get player's health
-    ZombieHealth zombieHealth;  // Get zombie's health
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Public Variables
+    //////////////////////////////////////////////////////////////////////////////////
     public NavMeshAgent nav;           // Create agent for Unity AI
 
-	// Use this for initialization
-	void Awake () {
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Private Variables
+    //////////////////////////////////////////////////////////////////////////////////
+    private Transform player;           // Get reference to player's position
+    private PlayerHealth playerHealth;  // Get player's health
+    private ZombieHealth zombieHealth;  // Get zombie's health
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Use this for initialization (Awake for AI)
+    //////////////////////////////////////////////////////////////////////////////////
+    void Awake () {
         player = GameObject.FindGameObjectWithTag("Player").transform; // Find player's position
         playerHealth = player.GetComponent<PlayerHealth>();            // Get player's health
         zombieHealth = GetComponent<ZombieHealth>();                   // Get zombie's health
         nav = GetComponent<NavMeshAgent>();                            // Create NavMeshAgent
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Update is called once per frame
+    //////////////////////////////////////////////////////////////////////////////////
+    void Update () {
 
         // If the zombie and player are both alive
         if (zombieHealth.currentHealth > 0 && playerHealth.currentHealth > 0)

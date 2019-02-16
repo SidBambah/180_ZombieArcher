@@ -12,7 +12,9 @@ using UnityEngine.AI;
 public class EnemyManager : MonoBehaviour
 {
 
-    // Public variables
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Public Variables
+    //////////////////////////////////////////////////////////////////////////////////
     public PlayerHealth playerHealth;  // Reference to player's health
     public GameObject enemy;           // Reference to enemy to make duplicate of
     public GameObject explosion;       // Reference to explosion prefab
@@ -23,18 +25,24 @@ public class EnemyManager : MonoBehaviour
     public float zmin;                 // Min z value where zombie can spawn
     public float zmax;                 // Max z value where zombie can spawn
 
-    // Static variables
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Static Variables
+    //////////////////////////////////////////////////////////////////////////////////
     public static GameObject[] zombiesAlive; // reference to each zombie alive
     public static GameObject[] powerups;
     public static bool[] spotTaken;
     public static int activeZombies;          // Number of zombies in the scene
 
-    // Private variables
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Private Variables
+    //////////////////////////////////////////////////////////////////////////////////
     private int maxPositions = 7;
     private int maxZombies = 32;
     public int maxActiveZombies = 2;
 
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
+    //////////////////////////////////////////////////////////////////////////////////
     void Start()
     {
 
@@ -51,13 +59,19 @@ public class EnemyManager : MonoBehaviour
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Update is called once per frame
+    //////////////////////////////////////////////////////////////////////////////////
     void Update()
     {
 
     }
 
-    // Takes in location to spawn zombie and whether the zombie can move
+
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Spawn Zombie Function
+    //////////////////////////////////////////////////////////////////////////////////
     public void Spawn(GameController.ZombieLocation loc, bool zombieMove, bool freePlay, float speed)
     {
 
@@ -140,7 +154,9 @@ public class EnemyManager : MonoBehaviour
 
     }
 
-    // Destroys the current zombie and allows the GameController to go back to previous zombie
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Respond Previous Zombie (Used for Tutorial Stage)
+    //////////////////////////////////////////////////////////////////////////////////
     public void RespawnPrevious(GameController.ZombieLocation loc)
     {
         // Increment number of zombies left, implements respawning previous zombies
@@ -153,6 +169,9 @@ public class EnemyManager : MonoBehaviour
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Remove all Zombie Gameobjects from the Scene
+    //////////////////////////////////////////////////////////////////////////////////
     public void DestroyAllZombies()
     {
         for (int k = 0; k < maxZombies; k++)
@@ -165,31 +184,38 @@ public class EnemyManager : MonoBehaviour
             }
         }
         activeZombies = 0;
-
-
     }
 
-    // Increase or decrease speed of all zombies by amt
-    public void setSpeed(float speed)
+
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Set Speed of All Zombies
+    //////////////////////////////////////////////////////////////////////////////////
+    public void SetSpeed(float speed)
     {
         for (int k = 0; k < maxZombies; k++)
         {
             if (spotTaken[k] == true)
             {
                 zombiesAlive[k].GetComponent<NavMeshAgent>().speed = speed;
-                zombiesAlive[k].GetComponent<Animator>().speed = speed + 1.0f;
+                zombiesAlive[k].GetComponent<Animator>().speed = speed;
             }
         }
 
 
     }
 
-    public void incMaxActiveZombies()
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Change Maximum Active Zombies
+    //////////////////////////////////////////////////////////////////////////////////
+    // If incrementing, increase array size
+    public void IncMaxActiveZombies()
     {
         maxActiveZombies += 1;
     }
 
-    public void decMaxActiveZombies()
+    // Before decrementing, destroy zombie in the last array spot
+    public void DecMaxActiveZombies()
     {
         if (spotTaken[maxActiveZombies - 1] == true)
         {
@@ -210,6 +236,7 @@ public class EnemyManager : MonoBehaviour
         {
             if (spotTaken[k] == true)
             {
+                // Instantiate an explosion at each zombie
                 Transform temp = zombiesAlive[k].transform;
                 powerups[k] = Instantiate(explosion, temp.position, temp.rotation);
                 Destroy(powerups[k], 3f);
@@ -217,9 +244,8 @@ public class EnemyManager : MonoBehaviour
 
 
         }
-
-
-
     }
+
+
 
 }

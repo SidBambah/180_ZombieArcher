@@ -57,7 +57,7 @@ public class GameController : MonoBehaviour
     private float narrativeTimer;       // Timer for staying in narrative function
     private float narrativeTime = 34f;  // Time to stay in narrative function
     private float MLTimer;              // Timer for when to call machine learning function
-    private float MLTime = 3f;         // How often to call machine learning function
+    private float MLTime = 3f;          // How often to call machine learning function
     private float refGlobalTime;        // Taking the difference between this and curGlobalTime yields time elapsed
     private bool start = false;         // Ensures that game does not start until the player presses return
     private bool narrativeDone = false; // Indicates the narrative is done playing
@@ -150,7 +150,7 @@ public class GameController : MonoBehaviour
             DisplayTime();
         }
 
-        // Can skip tutorial stages by pressing 'k' key
+        // Can skip tutorial stages by pressing 'k' key (for testing)
         if (Cur_State == (int)State.Stage1 || Cur_State == (int)State.Stage2 || Cur_State == (int)State.Stage3)
         {
             if (Input.GetKeyDown("k"))
@@ -163,7 +163,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        // Can go back to tutorial stage by pressing 'k' key
+        // Can go back to tutorial stage by pressing 'l' key (for testing)
         if (Cur_State == (int)State.FreePlay)
         {
             if (Input.GetKeyDown("l"))
@@ -197,6 +197,7 @@ public class GameController : MonoBehaviour
         }
 
         // Narrative ends narrativeTime later or when the return button is pressed
+        // Calls narrativeAnims to display narrative
         if (start == true && narrativeDone == false)
         {
             NarrativeAnims();
@@ -420,9 +421,13 @@ public class GameController : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////// 
     // Survival Mode
     //////////////////////////////////////////////////////////////////////////////////
-    // Free play mode where zombies get progressively stronger and faster
+    // Free play mode where zombies speed, spawn frequency, and the number of active 
+    // zombies is varied according to the player's skill
+    // Player can get demoted back to tutorial stage
     void FreePlay()
     {
+       
+        // Allow zombies to move
         zombieMov = true;
 
         // Spawn zombie every spawnTime seconds
@@ -437,10 +442,10 @@ public class GameController : MonoBehaviour
         }
 
 
-        // Change the speed of each zombie active in the scene
-        //enemManager.setSpeed(zombieSpeed);
+        // Set back to false
         bool repeatTutorial = false;
 
+        // Every MLTimer seconds, make a decision about the player's skill
         MLTimer += Time.deltaTime;
         if (MLTimer >= MLTime)
         {
@@ -473,13 +478,16 @@ public class GameController : MonoBehaviour
         {
             if (powerupsAvailable >= 1)
             {
-
+                // Play animations for the explosions
                 enemManager.BlowUpZombies();
+
+                // Destroy all zombie game objects
                 enemManager.DestroyAllZombies();
 
-
-
+                // Decrement number of power ups
                 powerupsAvailable -= 1;
+
+                // Increment zombie kill total, but don't increment killstreak
                 zombiesDestroyed += EnemyManager.activeZombies;
 
 
@@ -493,6 +501,7 @@ public class GameController : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////// 
     // Change Game Parameters
     //////////////////////////////////////////////////////////////////////////////////
+    /// Change each zombie's speed
     public void AdjustZombieSpeed(float amt)
     {
         // Ensure zombie speed does not fall below 0
@@ -503,8 +512,12 @@ public class GameController : MonoBehaviour
         // Increment zombie speed
         zombieSpeed += amt;
 
+        // Set all current zombie speeds
+        enemManager.SetSpeed(zombieSpeed);
+
     }
 
+    // Change zombie spawn frequency
     public void AdjustSpawnTime(float amt)
     {
         // Ensure spawn time does not fall below 0
@@ -595,7 +608,6 @@ public class GameController : MonoBehaviour
         if (Cur_State == (int)State.FreePlay)
         {
             mode = "Survival Time: ";
-
         }
         else 
         {
@@ -605,7 +617,7 @@ public class GameController : MonoBehaviour
         // Display current time
         timeText.text = mode + timeElapsed + " seconds";
 
-        //FIX
+        // TODO: Adjust when to save decision history to textfile
         if (timeElapsed >= saveCSV)
         {
             ML.Save();
@@ -641,6 +653,8 @@ public class GameController : MonoBehaviour
         Color temp = hitText.color;
         temp.a = 1;
         hitText.color = temp;
+
+        // Allow hit text to show for 1 second
         Invoke("HitTextOff", 1f);
     }
 
