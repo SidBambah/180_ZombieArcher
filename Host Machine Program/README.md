@@ -24,7 +24,7 @@ communicate successfully.
 
 ### Software Developed by the Team
 
-server.py - Main server file that connects to Pi and Unity
-camera_processing.py - Tracks objects on bow and gloves for quasi-multiplayer mode
-columndetect.py - Tracks objects on bow to correct for gyroscopic drift from IMU
-speech_processing.py - Detects hotwords for powerups and game interaction
+* server.py - Main server file that connects to Pi and Unity
+* camera_processing.py - Tracks objects on bow and gloves for quasi-multiplayer mode
+* columndetect.py - Tracks objects on bow to correct for gyroscopic drift from IMU
+* speech_processing.py - Detects hotwords for powerups and game interaction
