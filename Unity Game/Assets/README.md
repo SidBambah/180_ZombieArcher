@@ -19,5 +19,5 @@ ZombieMovement.cs - Gives zombie the ability to move
 PlayerHealth.cs - Stores player health and death functions
 
 
-### Scripts Received from Unity Asset Stores
+### Scripts Received from Unity Asset Store
 Longbow/Scripts/LongBowShoot.cs - Handles instantiating arrows, adapted to add particle trail
