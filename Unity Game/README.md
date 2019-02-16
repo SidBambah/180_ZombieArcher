@@ -21,3 +21,5 @@ PlayerHealth.cs - Stores player health and death functions
 
 ### Scripts Received from Unity Asset Store
 Longbow/Scripts/LongBowShoot.cs - Handles instantiating arrows, adapted to add particle trail
+
+Note: All important scripts stored in Assets directory
