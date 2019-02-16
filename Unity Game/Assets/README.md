@@ -7,7 +7,7 @@ EnemyManager.cs - Instantiates, stores, and destroys zombie gameobjects
 
 MachineLearning.cs - Interfaces with database to store player statistics and allows the game to react to stats
 
-Assets/UDPInterface.cs - Client side of UDP
+UDPInterface.cs - Client side of UDP
 
 ### Scripts that Mirror Unity Website Tutorial
 ZombieHealth.cs - Stores zombie health and death functions
