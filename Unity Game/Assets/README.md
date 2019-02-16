@@ -2,6 +2,7 @@
 
 ### Scripts Developed by Group
 GameController.cs - Controls switching between tutorial stages, multiplayer mode, and survival mode
+
 EnemyManager.cs - Instantiates, stores, and destroys zombie gameobjects
 
 MachineLearning.cs - Interfaces with database to store player statistics and allows the game to react to stats
