@@ -1,4 +1,4 @@
-## Server Program for ZombieArcher
+## Server Program
 
 This folder contains the Python server required to interface between
 the Unity game engine and the Raspberry Pi's IMU, which is mounted
