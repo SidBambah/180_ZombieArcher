@@ -10,7 +10,7 @@ processing and Porcupine speech recognition. Furthermore, the server uses
 the UDP communication protocol to act as a hub between the various hardware
 components needed for proper operation of the game.
 
-###Executing the Server
+### Executing the Server
 
 To run the server, simply execute:
 
@@ -22,7 +22,7 @@ Note: It is important to ensure that the host machine has UDP ports 10000 and
 10002 open in the firewall to allow for the Unity engine and Raspberry Pi to
 communicate successfully.
 
-###Software Developed by the Team
+### Software Developed by the Team
 
 server.py
 camera_processing.py
