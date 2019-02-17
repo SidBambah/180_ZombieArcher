@@ -3,7 +3,7 @@
 Berry IMU Sensor Fusion: Uses MadgwickAHRS filter along with 
 BerryIMU's library to determine the orientation of the device.
 
-## Python and C scripts
+### Python and C scripts
 
 * bow_sensors.py is a wrapper that utilizes all below scripts
 
