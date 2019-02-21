@@ -87,7 +87,6 @@ public class LongbowShoot : MonoBehaviour {
             arrow.gameObject.tag = "Arrow";
             flare = Instantiate(Flare, arrowSpawn.transform.position, transform.rotation, arrow.transform) as GameObject;
             //ADDED
-            GameController.arrowFires += 1;
             GameController.tutArrowFires += 1;
 
             //Add force to projectile, based off power
@@ -109,12 +108,11 @@ public class LongbowShoot : MonoBehaviour {
 
         yield return new WaitForSeconds(desTime);
 
-        tutCont.GetComponent<GameController>().DisplayStats();
-
         // Call machine learning miss function if the arrow did not deal damage to a zombie
         if (a.gameObject.GetComponent<ArrowHit>().arrowHit == false)
             ML.missShot(ML.playerName, ML.dbPath);
-        
+
+        tutCont.GetComponent<GameController>().DisplayStats();
 
         //ADDED
         Destroy(flare, 0);

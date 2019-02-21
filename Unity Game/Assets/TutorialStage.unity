@@ -1658,8 +1658,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d15b3f91053c248c18ac20049a8e154f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerHealth: {fileID: 1865449916}
-  restartDelay: 5
 --- !u!1 &88521979
 GameObject:
   m_ObjectHideFlags: 0
@@ -6049,7 +6047,7 @@ MonoBehaviour:
   statsText: {fileID: 950973018}
   loc: 0
   resLoc: 0
-  zombieSpeed: 0.1
+  zombieSpeed: 1
   playerHealth: {fileID: 1865449916}
   player: {fileID: 0}
   ML: {fileID: 0}
@@ -13645,7 +13643,7 @@ MonoBehaviour:
   xmin: -0.5
   xmax: 6
   zmin: -3
-  zmax: 2.5
+  zmax: 1.5
   maxActiveZombies: 2
 --- !u!4 &845836058
 Transform:
@@ -14893,8 +14891,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 150, y: -200}
-  m_SizeDelta: {x: 250, y: 200}
+  m_AnchoredPosition: {x: 150, y: -300}
+  m_SizeDelta: {x: 220, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &950973016
 MonoBehaviour:

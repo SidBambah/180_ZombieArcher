@@ -60,8 +60,6 @@ public class ArrowHit : MonoBehaviour
                         // Call machine learning headshot function
                         ML.headShot(ML.playerName, ML.dbPath);
 
-                        // Increment head shots
-                        GameController.headShots += 1;
                     }
                     else
                     {
@@ -74,8 +72,6 @@ public class ArrowHit : MonoBehaviour
                         // Call machine learning headshot function
                         ML.bodyShot(ML.playerName, ML.dbPath);
 
-                        // Increment body shots
-                        GameController.bodyShots += 1;
                     }
                     arrowHit = true;
                     GameController.arrowHits += 1;

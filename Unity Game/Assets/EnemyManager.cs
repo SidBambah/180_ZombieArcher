@@ -138,8 +138,8 @@ public class EnemyManager : MonoBehaviour
             // Enable zombie to move
             newZombie.GetComponent<ZombieMovement>().enabled = true;
             newZombie.GetComponent<Animator>().SetTrigger("Walk");
-            newZombie.GetComponent<NavMeshAgent>().speed = speed;
-            newZombie.GetComponent<Animator>().speed = speed + 1.0f; // Correcting factor
+            newZombie.GetComponent<NavMeshAgent>().speed = 0.1f;
+            newZombie.GetComponent<Animator>().speed = speed;
         }
 
         // Store new zombie
@@ -197,7 +197,7 @@ public class EnemyManager : MonoBehaviour
         {
             if (spotTaken[k] == true)
             {
-                zombiesAlive[k].GetComponent<NavMeshAgent>().speed = speed;
+                zombiesAlive[k].GetComponent<NavMeshAgent>().speed = 0.1f;
                 zombiesAlive[k].GetComponent<Animator>().speed = speed;
             }
         }

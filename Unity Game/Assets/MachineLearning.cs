@@ -196,9 +196,13 @@ public class MachineLearning : MonoBehaviour
 		double hitpercent = 0;
 		double misspercent = 0;
 		double headshotpercent = 0;
-		
-		//Get all of the statistics from database
-		using (var conn = new SqliteConnection(dbPath)) {
+        double missshots = 0;
+        double headshots = 0;
+        double bodyshots = 0;
+
+
+        //Get all of the statistics from database
+        using (var conn = new SqliteConnection(dbPath)) {
 			conn.Open();
 			using (var cmd = conn.CreateCommand()) {
 				cmd.CommandType = CommandType.Text;
@@ -212,12 +216,15 @@ public class MachineLearning : MonoBehaviour
 					hitpercent = (double) reader["hitpercent"];
 					misspercent = (double) reader["misspercent"];
 					headshotpercent = (double) reader["headshotpercent"];
-				}
+                    missshots = (double) reader["missshots"];
+                    headshots = (double) reader["headshots"];
+                    bodyshots = (double) reader["bodyshots"];
+                }
 			}
 		}
 
         //Fill and return array with all of the neccessary statistics.
-        double[] arr = {hitpercent, misspercent, headshotpercent};
+        double[] arr = {hitpercent, misspercent, headshotpercent, missshots, headshots, bodyshots};
 		return arr;
 	}
 
@@ -232,9 +239,6 @@ public class MachineLearning : MonoBehaviour
 		double misspercent = stats[1];
 		double headshotpercent = stats[2];
 
-        Debug.Log("Miss percent: " + misspercent);
-        Debug.Log("Hit percent: " + hitpercent);
-        Debug.Log("Head shot percent: " + headshotpercent);
 
 
         // Determine player's skill level using two features: misspercent and headshotpercent
@@ -269,20 +273,20 @@ public class MachineLearning : MonoBehaviour
                 repeatTutorial = true;
                 break;
             case (int)SkillState.Amateur:
-                speedIncrease = 0.001f;
-                spawnTimeDecrease = 0.10f;
+                speedIncrease = 0.05f;
+                spawnTimeDecrease = 0.05f;
                 activeZombieIncrease = false;
                 repeatTutorial = false;
                 break;
             case (int)SkillState.Advanced:
-                speedIncrease = 0.002f;
-                spawnTimeDecrease = 0.20f;
+                speedIncrease = 0.1f;
+                spawnTimeDecrease = 0.1f;
                 activeZombieIncrease = false;
                 repeatTutorial = false;
                 break;
             case (int)SkillState.Sharpshooter:
-                speedIncrease = 0.003f;
-                spawnTimeDecrease = 0.30f;
+                speedIncrease = 0.15f;
+                spawnTimeDecrease = 0.15f;
                 activeZombieIncrease = true;
                 repeatTutorial = false;
                 break;
@@ -296,6 +300,8 @@ public class MachineLearning : MonoBehaviour
         {
             enemManager.IncMaxActiveZombies();
         }
+
+        Debug.Log(playerSkill);
 
         // Record inputs and outputs of decision tree to csv file
         string[] rowDataTemp = new string[4];
@@ -335,7 +341,7 @@ public class MachineLearning : MonoBehaviour
             sb.AppendLine(string.Join(delimiter, output[index]));
 
 
-        string filePath = Application.dataPath + "/" + playerName + ".csv";
+        string filePath = Application.dataPath + "/PlayerData/" + playerName + ".csv";
 
         StreamWriter outStream = System.IO.File.CreateText(filePath);
         outStream.WriteLine(sb);

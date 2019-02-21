@@ -28,16 +28,13 @@ public class GameController : MonoBehaviour
     public Text statsText;              // Displays user's statistics
     public ZombieLocation loc;          // Where to spawn zombie
     public ZombieLocation resLoc;       // Where to respawn zombie
-    public float zombieSpeed = 0.0001f; // Speed of the zombies
+    private float zombieSpeed = 1f;   // Speed of the zombies
     public PlayerHealth playerHealth;   // Get player's health
     public Transform player;            // Reference to transform of the player
     public MachineLearning ML;
 
     public static int Cur_State;        // Indicates current state of tutorial scene
     public static int arrowHits = 0;    // Number of arrow hits
-    public static int arrowFires = 0;   // Number of arrow fires
-    public static int bodyShots = 0;    // Number of body shots
-    public static int headShots = 0;    // Number of head shots
     public static int ZombiesLeft;      // Number of zombies left for tutorial stage
     public static int zombiesDestroyed = 0; // Total number of zombies destroyed
     public static int tutArrowFires = 0;    // Number of arrow fires in tutorial
@@ -57,7 +54,7 @@ public class GameController : MonoBehaviour
     private float narrativeTimer;       // Timer for staying in narrative function
     private float narrativeTime = 34f;  // Time to stay in narrative function
     private float MLTimer;              // Timer for when to call machine learning function
-    private float MLTime = 3f;          // How often to call machine learning function
+    private float MLTime = 30f;          // How often to call machine learning function
     private float refGlobalTime;        // Taking the difference between this and curGlobalTime yields time elapsed
     private bool start = false;         // Ensures that game does not start until the player presses return
     private bool narrativeDone = false; // Indicates the narrative is done playing
@@ -96,6 +93,8 @@ public class GameController : MonoBehaviour
         loc = ZombieLocation.Near;
         resLoc = ZombieLocation.Near;
 
+        // Display statistics
+        DisplayStats();
 
     }
 
@@ -670,28 +669,14 @@ public class GameController : MonoBehaviour
     //////////////////////////////////////////////////////////////////////////////////
     public void DisplayStats()
     {
+        double[] stats = ML.getPercents(ML.playerName, ML.dbPath);
 
-        // Display statistics
-        int misses = arrowFires - arrowHits;
-        float hit_pct;
-        float body_pct;
-        float head_pct;
+        double hits = stats[4] + stats[5];
+        string hit_pct = (stats[0] * 100f).ToString("F2");
+        string headshot_pct = (stats[2] * 100f).ToString("F2");
 
-        // Compute hit percentage
-        if (arrowFires == 0)
-        {
-            hit_pct = 100f;
-            body_pct = 100f;
-            head_pct = 100f;
-        }
-        else
-        {
-            hit_pct = 100f * ((float)arrowHits / (float)arrowFires);
-            body_pct = 100f * ((float)bodyShots / (float)arrowFires);
-            head_pct = 100f * ((float)headShots / (float)arrowFires);
-        }
-        statsText.text = "Hits: " + arrowHits + "\nMisses: " + misses + "\nHit %: " + hit_pct + "\nBody Shots: " + bodyShots + "\nHead Shots: " + headShots
-            + "\nZombies Destroyed: " + zombiesDestroyed;
+        statsText.text = "Statistics for " + ML.playerName + ":\nHits: " + hits + "\nMisses: " + stats[3] + "\nHit %: " + hit_pct + "\nBody Shots: " + stats[5] + "\nHead Shots: " + stats[4]
+            + "\nHeadshot %: " + headshot_pct + "\nZombies Destroyed: " + zombiesDestroyed;
     }
 
 }
