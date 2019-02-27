@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 global imageValue
-imageValue = "Q1"
+imageValue = "Q0"
 
 def recognize():
 
@@ -11,7 +11,6 @@ def recognize():
 
 	while(1):
 		global imageValue
-
 		# Take each frame
 		_, frame = cap.read()
 
@@ -65,6 +64,8 @@ def recognize():
 					imageValue = "Q2"
 				else:
 					imageValue = "Q1"
+			else
+				imageValue = "Q0"
 		
 		#print(len(contours))
 		
