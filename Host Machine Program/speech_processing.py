@@ -30,7 +30,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'porcupine/binding/pytho
 
 from porcupine import Porcupine
 global speechValue
+global speechCommandNumber
 speechValue = "pause"
+speechCommandNumber = 0
 
 def recognize():
     class PorcupineProcessor(Thread):
@@ -116,6 +118,7 @@ def recognize():
                     if num_keywords > 1 and result >= 0:
                         print('[%s] detected %s' % (str(datetime.now()), keyword_names[result]))
                         speechValue = keyword_names[result].split(' ')[0]
+						speechCommandNumber = speechCommandNumber + 1
 
             except KeyboardInterrupt:
                 print('stopping ...')
