@@ -50,6 +50,7 @@ def client_communicate():
 			data['speech'] = speech_processing.speechValue
 			data['speechNumber'] = speech_processing.speechCommandNumber
 			data['quadrant'] = camera_processing.imageValue
+			data['imageNumber'] = camera_processing.imageCommandNumber
 			##Convert back to python and send
 			data = json.dumps(data)
 			print (data) ##Print the data for debugging purposes

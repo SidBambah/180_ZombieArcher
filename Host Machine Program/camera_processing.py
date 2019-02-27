@@ -4,13 +4,15 @@ import numpy as np
 
 global imageValue
 imageValue = "Q0"
-
+global imageCommandNumber
+imageCommandNumber = 0
 def recognize():
 
 	cap = cv2.VideoCapture(0)
-
+	
 	while(1):
 		global imageValue
+		global imageCommandNumber
 		# Take each frame
 		_, frame = cap.read()
 

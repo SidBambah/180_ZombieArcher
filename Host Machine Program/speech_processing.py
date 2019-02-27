@@ -74,6 +74,7 @@ def recognize():
 
         def run(self):
             global speechValue
+			global speechCommandNumber
             """
              Creates an input audio stream, initializes wake word detection (Porcupine) object, and monitors the audio
              stream for occurrences of the wake word(s). It prints the time of detection for each occurrence and index of
