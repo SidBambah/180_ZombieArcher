@@ -14,8 +14,8 @@ while(1):
 
     # define range of green color in HSV
 	# ranges: H = [0, 179], S = [0, 255], V = [0, 255]
-    lower_blue = np.array([70,50,50]) # Pink = (110,50,50), #Green = (70,50,50)
-    upper_blue = np.array([100,255,255]) # Pink = (130,255,255), #Green = (100,255,255)
+    lower_blue = np.array([0,115,85]) # Pink = (110,50,50), #Green = (70,50,50)
+    upper_blue = np.array([179,235,200]) # Pink = (130,255,255), #Green = (100,255,255)
 
     # Threshold the HSV image to get only blue colors
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
@@ -26,7 +26,7 @@ while(1):
     # Original processed image
     # cv2.imshow('original res', res)
         
-    res = cv2.blur(res,(50,50)) # (n,n) defines kernel dimension
+    res = cv2.blur(res,(20,20)) # (n,n) defines kernel dimension
     # cv2.imshow('Blurred res', res);
     
     # Contouring
