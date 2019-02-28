@@ -1,4 +1,3 @@
-#https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html
 import cv2
 import numpy as np
 
