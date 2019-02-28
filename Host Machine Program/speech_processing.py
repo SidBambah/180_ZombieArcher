@@ -74,7 +74,7 @@ def recognize():
 
         def run(self):
             global speechValue
-			global speechCommandNumber
+            global speechCommandNumber
             """
              Creates an input audio stream, initializes wake word detection (Porcupine) object, and monitors the audio
              stream for occurrences of the wake word(s). It prints the time of detection for each occurrence and index of
@@ -119,7 +119,7 @@ def recognize():
                     if num_keywords > 1 and result >= 0:
                         print('[%s] detected %s' % (str(datetime.now()), keyword_names[result]))
                         speechValue = keyword_names[result].split(' ')[0]
-						speechCommandNumber = speechCommandNumber + 1
+                        speechCommandNumber = speechCommandNumber + 1
 
             except KeyboardInterrupt:
                 print('stopping ...')
