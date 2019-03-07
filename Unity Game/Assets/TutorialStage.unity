@@ -112,7 +112,7 @@ NavMeshSettings:
     accuratePlacement: 0
     debug:
       m_Flags: 0
-  m_NavMeshData: {fileID: 23800000, guid: 856b786f0365f4d6698e15ddf4787748, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 0a16a923e068b4d729cf162196a892b4, type: 2}
 --- !u!1 &6131114
 GameObject:
   m_ObjectHideFlags: 0
@@ -1521,7 +1521,6 @@ GameObject:
   - component: {fileID: 86202434}
   - component: {fileID: 86202433}
   - component: {fileID: 86202438}
-  - component: {fileID: 86202439}
   m_Layer: 5
   m_Name: HUDCanvas
   m_TagString: Untagged
@@ -1651,17 +1650,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &86202439
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 86202432}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d15b3f91053c248c18ac20049a8e154f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &88521979
 GameObject:
   m_ObjectHideFlags: 0
@@ -5125,7 +5113,6 @@ GameObject:
   - component: {fileID: 279811990}
   - component: {fileID: 279811991}
   - component: {fileID: 279811989}
-  - component: {fileID: 279811988}
   m_Layer: 5
   m_Name: TutorialText
   m_TagString: Untagged
@@ -5151,17 +5138,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 150}
   m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &279811988
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 279811986}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &279811989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12394,7 +12370,6 @@ GameObject:
   - component: {fileID: 780944053}
   - component: {fileID: 780944052}
   - component: {fileID: 780944055}
-  - component: {fileID: 780944054}
   m_Layer: 5
   m_Name: ScoreText
   m_TagString: Untagged
@@ -12460,17 +12435,6 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 780944050}
   m_CullTransparentMesh: 0
---- !u!114 &780944054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 780944050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &780944055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13647,7 +13611,6 @@ GameObject:
   m_Component:
   - component: {fileID: 841710533}
   - component: {fileID: 841710536}
-  - component: {fileID: 841710535}
   - component: {fileID: 841710534}
   m_Layer: 2
   m_Name: Climbable
@@ -13686,18 +13649,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
---- !u!114 &841710535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 11400000, guid: 73169554a4b4b4c47b1132d7f876239b,
-    type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 841710532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &841710536
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14397,7 +14348,6 @@ GameObject:
   - component: {fileID: 898480780}
   - component: {fileID: 898480781}
   - component: {fileID: 898480779}
-  - component: {fileID: 898480778}
   m_Layer: 5
   m_Name: ArrowsAvailableText
   m_TagString: Untagged
@@ -14423,17 +14373,6 @@ RectTransform:
   m_AnchoredPosition: {x: 100, y: 100}
   m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &898480778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 898480776}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &898480779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15080,7 +15019,6 @@ GameObject:
   - component: {fileID: 950973019}
   - component: {fileID: 950973018}
   - component: {fileID: 950973017}
-  - component: {fileID: 950973016}
   m_Layer: 5
   m_Name: StatsText
   m_TagString: Untagged
@@ -15106,17 +15044,6 @@ RectTransform:
   m_AnchoredPosition: {x: 150, y: -300}
   m_SizeDelta: {x: 220, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &950973016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 950973014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &950973017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18157,7 +18084,6 @@ GameObject:
   - component: {fileID: 1120005595}
   - component: {fileID: 1120005594}
   - component: {fileID: 1120005593}
-  - component: {fileID: 1120005592}
   m_Layer: 5
   m_Name: StreakText
   m_TagString: Untagged
@@ -18183,17 +18109,6 @@ RectTransform:
   m_AnchoredPosition: {x: -300, y: -100}
   m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1120005592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1120005590}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1120005593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18502,7 +18417,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 350}
+  m_AnchoredPosition: {x: 0, y: 450}
   m_SizeDelta: {x: 1500, y: 2000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1146919419
@@ -18539,7 +18454,9 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'Zombie Archer!
 
-    Say "Start" or press "return" to begin!'
+    Say "start" or press "return" to begin!
+
+    Alternatively, press "m" for multiplayer mode!'
 --- !u!222 &1146919420
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -19076,7 +18993,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 400, y: 400}
+  m_SizeDelta: {x: 1000, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1194812971
 MonoBehaviour:
@@ -19099,11 +19016,11 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: 87c316b602156405d92e616621658222, type: 3}
-    m_FontSize: 20
+    m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 1
     m_MinSize: 0
-    m_MaxSize: 300
+    m_MaxSize: 20
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -22524,7 +22441,6 @@ GameObject:
   - component: {fileID: 1375980028}
   - component: {fileID: 1375980027}
   - component: {fileID: 1375980026}
-  - component: {fileID: 1375980025}
   m_Layer: 5
   m_Name: FeedbackText
   m_TagString: Untagged
@@ -22550,17 +22466,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 100}
   m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1375980025
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1375980023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1375980026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26339,7 +26244,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1657738193}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 2.5, y: 0.0000007525024, z: -7.5}
+  m_LocalPosition: {x: 2.5, y: 0.0000007525024, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -28136,7 +28041,6 @@ GameObject:
   - component: {fileID: 1751515231}
   - component: {fileID: 1751515230}
   - component: {fileID: 1751515229}
-  - component: {fileID: 1751515228}
   m_Layer: 5
   m_Name: TimeText
   m_TagString: Untagged
@@ -28162,17 +28066,6 @@ RectTransform:
   m_AnchoredPosition: {x: -300, y: -50}
   m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1751515228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1751515226}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1751515229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28219,7 +28112,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Tutorial Time: 0 seconds'
+  m_Text: 
 --- !u!222 &1751515231
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -30405,7 +30298,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingHealth: 100
-  currentHealth: 0
+  currentHealth: 100
   healthSlider: {fileID: 793061430}
   damageImage: {fileID: 105552859}
   deathClip: {fileID: 0}
@@ -30423,17 +30316,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   crosshairImage: {fileID: 2800000, guid: 7251bd8650d2a8d428edb29289952851, type: 3}
---- !u!114 &1865449922
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1865449914}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4beb8192ea7a40dfacb121550d1874b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1868602544
 GameObject:
   m_ObjectHideFlags: 0
@@ -31021,7 +30903,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Tutorial Stage: 1/4'
+  m_Text: 
 --- !u!222 &1902692824
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -34622,7 +34504,6 @@ GameObject:
   - component: {fileID: 2146184705}
   - component: {fileID: 2146184704}
   - component: {fileID: 2146184703}
-  - component: {fileID: 2146184702}
   m_Layer: 5
   m_Name: NukeText
   m_TagString: Untagged
@@ -34648,17 +34529,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -200}
   m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2146184702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 2146184700}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c01647ca9d4043b5a5c1c3f7d0770, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2146184703
 MonoBehaviour:
   m_ObjectHideFlags: 0

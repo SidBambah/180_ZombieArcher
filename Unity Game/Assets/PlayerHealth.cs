@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class PlayerHealth : MonoBehaviour
 {
     // Public variables
-    public int startingHealth = 100;    // Player's starting health
+    public int startingHealth;    // Player's starting health
     public int currentHealth;           // Player's current health
     public Slider healthSlider;         // Reference to health slider on GUI
     public Image damageImage;           // Reference to Image on GUI so can change the flashing color
@@ -44,6 +44,8 @@ public class PlayerHealth : MonoBehaviour
             damageImage.color = Color.Lerp(damageImage.color, Color.clear, flashSpeed * Time.deltaTime); // Slowly fade away the flash color
         }
         damaged = false; // Reset damaged to false
+
+
     }
 
 

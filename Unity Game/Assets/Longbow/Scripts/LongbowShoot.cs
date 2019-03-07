@@ -19,8 +19,8 @@ public class LongbowShoot : MonoBehaviour
     public MachineLearning ML;      // ADDED
 
     private bool shooting = false;
-    private float shootingTimer;       
-    private float shootingTime;       
+    private float shootingTimer;
+    private float shootingTime;
 
 
     // Use this for initialization
@@ -76,7 +76,8 @@ public class LongbowShoot : MonoBehaviour
         }
     }
 
-    void ControllerShoot()
+    // Shows animation, shot occurs after animation
+    /*void ControllerShoot()
     {
         if (UDPInterface.validForce)
         {
@@ -105,7 +106,20 @@ public class LongbowShoot : MonoBehaviour
 
         }
 
+    }*/
+
+    // Does not show animation, shot occurs immediately
+    void ControllerShoot()
+    {
+        if (UDPInterface.validForce)
+        {
+            // set power
+            power = ((float)maxPower) * UDPInterface.force;
+            InstantiateArrow(power);
+
+        }
     }
+    
 
     void StartShot()
     {

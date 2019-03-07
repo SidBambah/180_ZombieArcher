@@ -18,7 +18,7 @@ public class ZombieMovement : MonoBehaviour {
     private Transform player;           // Get reference to player's position
     private PlayerHealth playerHealth;  // Get player's health
     private ZombieHealth zombieHealth;  // Get zombie's health
-
+   
     ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization (Awake for AI)
     //////////////////////////////////////////////////////////////////////////////////
@@ -46,4 +46,11 @@ public class ZombieMovement : MonoBehaviour {
             nav.enabled = false;
         }
 	}
+
+    public void DisableMovement()
+    {
+        nav.speed = 0;
+        
+        
+    }
 }

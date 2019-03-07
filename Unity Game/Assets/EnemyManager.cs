@@ -36,7 +36,6 @@ public class EnemyManager : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////// 
     // Private Variables
     //////////////////////////////////////////////////////////////////////////////////
-    private int maxPositions = 7;
     private int maxZombies = 32;
     public int maxActiveZombies = 2;
 
@@ -72,7 +71,7 @@ public class EnemyManager : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////// 
     // Spawn Zombie Function
     //////////////////////////////////////////////////////////////////////////////////
-    public void Spawn(GameController.ZombieLocation loc, bool zombieMove, bool freePlay, float speed)
+    public void Spawn(GameController.ZombieLocation loc, bool zombieMove, int mode, float speed)
     {
 
         // If the player is dead
@@ -83,7 +82,7 @@ public class EnemyManager : MonoBehaviour
 
 
         // In tutorial mode, only allow one zombie on the screen
-        if (!freePlay)
+        if (mode == 0)
         {
             for (int k = 0; k < maxZombies; k++)
             {
@@ -111,7 +110,7 @@ public class EnemyManager : MonoBehaviour
 
         Vector3 zombiePos;
         // Choose where to spawn zombie
-        if (freePlay)
+        if (mode == 1)
         {
             zombiePos.x = Random.Range(xmin, xmax);
             zombiePos.y = 7.525024e-07f;
@@ -245,7 +244,26 @@ public class EnemyManager : MonoBehaviour
 
         }
     }
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Melee
+    //////////////////////////////////////////////////////////////////////////////////
+    public void Melee()
+    {
+        for (int k = 0; k < maxZombies; k++)
+        {
+            if (spotTaken[k] == true)
+            {
+                GameObject a = zombiesAlive[k];
+                if (a.GetComponent<ZombieAttack>().IsPlayerInRange() == true)
+                {
+                    Destroy(zombiesAlive[k], 0);
+                    spotTaken[k] = false;
+                    activeZombies -= 1;
+                    return;
+                }
 
-
+            }
+        }
+    }
 
 }

@@ -48,7 +48,7 @@ public class ArrowHit : MonoBehaviour
                 // Deal damage if arrow has not dealt damage before
                 if (!arrowHit)
                 {
-                    float yPos = other.gameObject.transform.position.y;
+
                     if (transform.position.y > other.gameObject.GetComponent<ZombieHealth>().zombieNeckHeight)
                     {
                         // Headshot has occurred

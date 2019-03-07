@@ -54,8 +54,6 @@ public class GameController : MonoBehaviour
     private float restartTimer;         // After game is over, time before scene is reloaded
     private float spawnTimer;           // Timer for spawning zombies
     private float spawnTime = 4f;       // Time between zombie spawns in free play mode
-    private float capacityTimer;        // Timer for increasing capacity of zombies in scene
-    private float capacityTime = 5f;    // Time between increasing capacity of zombies
     private float startTimer;           // Timer for staying in gamestart state
     private float startTime = 3f;       // Time to stay in gamestart state, needed to fade screen
     private float narrativeTimer;       // Timer for staying in narrative function
@@ -73,6 +71,9 @@ public class GameController : MonoBehaviour
     private int numReloads = 0;
     private int numMelee = 0;
     private int numNukesTut = 0;
+    private bool tutorialStage = false;
+    private int startState;
+    
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
@@ -94,7 +95,6 @@ public class GameController : MonoBehaviour
         // Initialize all timers to 0
         restartTimer = 0f;
         spawnTimer = 0f;
-        capacityTimer = 0f;
         startTimer = 0f;
         narrativeTimer = 0f;
         MLTimer = 0f;
@@ -105,8 +105,6 @@ public class GameController : MonoBehaviour
 
         // Display statistics
         DisplayStats();
-
-                
 
     }
 
@@ -121,7 +119,6 @@ public class GameController : MonoBehaviour
         {
             Cur_State = (int)State.GameOver;
         }
-
 
         // Enter game mode based on current state
         switch (Cur_State)
@@ -161,17 +158,31 @@ public class GameController : MonoBehaviour
                 break;
         }
 
-        // Display current time and check if paused
+        // Display Text Boxes
+        DisplayUIText();
+
+        // Check if paused
         if (Cur_State != (int)State.GameStart)
         {
-            DisplayTime();
             CheckIfPaused();
         }
 
-        // Can skip tutorial stages by pressing 'k' key (for testing)
-        if (Cur_State == (int)State.Stage1 || Cur_State == (int)State.Stage2 || Cur_State == (int)State.Stage3)
+        // Check if in tutorial
+        if (Cur_State == (int)State.Stage1 || Cur_State == (int)State.Stage2 || Cur_State == (int)State.Stage3
+                 || Cur_State == (int)State.Stage4 || Cur_State == (int)State.Stage5 || Cur_State == (int)State.Stage6
+                 || Cur_State == (int)State.Stage7)
         {
-            if (Input.GetKeyDown("k"))
+            tutorialStage = true;
+        }
+        else 
+        {
+            tutorialStage = false;
+        }
+
+        // Can skip tutorial stages by pressing 'k' key (for testing)
+        if (tutorialStage == true)
+        {
+            if (Input.GetKeyDown("g"))
             {
                 enemManager.DestroyAllZombies();
                 refGlobalTime = Time.time;
@@ -184,22 +195,13 @@ public class GameController : MonoBehaviour
         // Can go back to tutorial stage by pressing 'l' key (for testing)
         if (Cur_State == (int)State.FreePlay)
         {
-            if (Input.GetKeyDown("l"))
+            if (Input.GetKeyDown("h"))
             {
                 enemManager.DestroyAllZombies();
                 refGlobalTime = Time.time;
                 Cur_State = (int)State.Stage1;
             }
         }
-
-        // Display arrows left
-        DisplayItemsLeft();
-
-        // Display stage text and zombies left text
-        DisplayStage();
-
-        // Display kill streak
-        DisplayStreak();
 
 
         // Reload the arrows if the player reloads
@@ -208,13 +210,13 @@ public class GameController : MonoBehaviour
             arrowsLeft = maxArrows;
             numReloads += 1;
         }
-        if (UDPInterface.melee || Input.GetKeyDown("m"))
+
+        // Perform melee 
+        if (UDPInterface.melee || Input.GetKeyDown("n"))
         {
             numMelee += 1;
+            enemManager.Melee();
         }
-
-        DisplayFeedback();
-
 
         // FOR TESTING
         if (UDPInterface.melee)
@@ -256,7 +258,15 @@ public class GameController : MonoBehaviour
         if ((UDPInterface.speech == "play" && UDPInterface.validSpeech == true) || Input.GetKeyDown("return"))
         {
             start = true;
+            startState = (int)State.Stage1;
+            
         }
+        if (Input.GetKeyDown("m"))
+        {
+            start = true;
+            startState = (int)State.Multiplayer;
+        }
+
 
         // Narrative ends narrativeTime later or when the return button is pressed
         // Calls narrativeAnims to display narrative
@@ -264,7 +274,7 @@ public class GameController : MonoBehaviour
         {
             NarrativeAnims();
             narrativeTimer += Time.deltaTime;
-            if (narrativeTimer >= narrativeTime || Input.GetKeyDown("return"))
+            if (narrativeTimer >= narrativeTime || Input.GetKeyDown("l"))
             {
                 narrativeDone = true;
             }
@@ -279,7 +289,7 @@ public class GameController : MonoBehaviour
             if (startTimer >= startTime)
             {
                 refGlobalTime = Time.time;
-                Cur_State = (int)State.Stage1;
+                Cur_State = startState;
                 // Reset timer and start
                 startTimer = 0f;
                 start = false;
@@ -502,7 +512,7 @@ public class GameController : MonoBehaviour
         if (tutArrowFires >= maxShots)
             enemManager.RespawnPrevious(resLoc);
         else
-            enemManager.Spawn(loc, zombieMov, false, zombieSpeed);
+            enemManager.Spawn(loc, zombieMov, 0, zombieSpeed);
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -511,18 +521,32 @@ public class GameController : MonoBehaviour
     // Spawns zombies in 4 different locations
     void Multiplayer()
     {
+        enemManager.maxActiveZombies = 5;
         zombieMov = true;
-        if (UDPInterface.validQuadrant)
+        bool a = UDPInterface.testing;
+        if (UDPInterface.validQuadrant || a)
         {
-            if (UDPInterface.spawnQuadrant == "Q1" || Input.GetKeyDown("u"))
+            if ((UDPInterface.spawnQuadrant == "Q1" && !a) || Input.GetKeyDown("u"))
+            {
                 loc = ZombieLocation.FarLeft;
-            else if (UDPInterface.spawnQuadrant == "Q2" || Input.GetKeyDown("i"))
+                enemManager.Spawn(loc, zombieMov, 2, zombieSpeed);
+            }
+            else if ((UDPInterface.spawnQuadrant == "Q2" && !a) || Input.GetKeyDown("i"))
+            {
                 loc = ZombieLocation.FarRight;
-            else if (UDPInterface.spawnQuadrant == "Q3" || Input.GetKeyDown("j"))
+                enemManager.Spawn(loc, zombieMov, 2, zombieSpeed);
+            }
+            else if ((UDPInterface.spawnQuadrant == "Q3" && !a) || Input.GetKeyDown("j"))
+            {
                 loc = ZombieLocation.Left;
-            else if (UDPInterface.spawnQuadrant == "Q4" || Input.GetKeyDown("k"))
+                enemManager.Spawn(loc, zombieMov, 2, zombieSpeed);
+            }
+            else if ((UDPInterface.spawnQuadrant == "Q4" && !a) || Input.GetKeyDown("k"))
+            {
                 loc = ZombieLocation.Right;
-            enemManager.Spawn(loc, zombieMov, false, zombieSpeed);
+                enemManager.Spawn(loc, zombieMov, 2, zombieSpeed);
+            }
+
         }
     }
 
@@ -543,7 +567,7 @@ public class GameController : MonoBehaviour
         if (spawnTimer >= spawnTime)
         {
 
-            enemManager.Spawn(loc, zombieMov, true, zombieSpeed);
+            enemManager.Spawn(loc, zombieMov, 1, zombieSpeed);
 
             // Reset timer
             spawnTimer = 0f;
@@ -599,12 +623,10 @@ public class GameController : MonoBehaviour
                 // Increment zombie kill total, but don't increment killstreak
                 zombiesDestroyed += EnemyManager.activeZombies;
 
-
             }
         }
 
     }
-
 
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -675,12 +697,12 @@ public class GameController : MonoBehaviour
     //////////////////////////////////////////////////////////////////////////////////
     void CheckIfPaused()
     {
-        if ((UDPInterface.speech == "pause" && UDPInterface.validSpeech == true) || Input.GetKeyDown("y"))
+        if ((UDPInterface.speech == "pause" && UDPInterface.validSpeech == true) || Input.GetKeyDown("t"))
         {
             UDPInterface.moveBowValid = false;
             pauseText.enabled = true;
         }
-        else
+        else if ((UDPInterface.speech == "play" && UDPInterface.validSpeech == true) || Input.GetKeyDown("y"))
         {
             UDPInterface.moveBowValid = true;
             pauseText.enabled = false;
@@ -688,20 +710,70 @@ public class GameController : MonoBehaviour
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
+    // Calls Display Functions
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayUIText()
+    {
+        // Display stage text and zombies left text
+        DisplayStage();
+
+        // Display kill streak
+        DisplayStreak();
+
+        // Display current time
+        DisplayTime();
+
+        // Display arrows left
+        DisplayItemsLeft();
+
+        // Display to reload arrow
+        DisplayFeedback();
+
+    }
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Displays Current Stage and Zombies 
     //////////////////////////////////////////////////////////////////////////////////
     private void DisplayStage()
     {
-        if (Cur_State != (int)State.FreePlay)
+        if (tutorialStage == true)
         {
             stageText.text = "Tutorial Stage " + Cur_State + "/7";
             zombiesLeftText.text = "Zombies Left: " + ZombiesLeft;
         }
-        else
+        else if (Cur_State == (int)State.FreePlay)
         {
             stageText.text = "Survival Mode";
             zombiesLeftText.text = "Active Zombies: " + EnemyManager.activeZombies;
         }
+        else if (Cur_State == (int)State.Multiplayer)
+        {
+            stageText.text = "Multiplayer Mode";
+            zombiesLeftText.text = "Active Zombies " + EnemyManager.activeZombies;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays Kill Streak
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayStreak()
+    {
+        int streak = 0;
+
+        if (tutorialStage == true)
+        {
+            streak = 0;
+        }
+        else if (Cur_State == (int)State.FreePlay)
+        {
+            streak = killStreak;
+        }
+        else if (Cur_State == (int)State.Multiplayer)
+        {
+            streak = 0;
+        }
+
+        streakText.text = "Kill Streak: " + streak;
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -713,20 +785,26 @@ public class GameController : MonoBehaviour
         int timeElapsed = (int)(Time.time - refGlobalTime);
 
         // Holds game mode
-        string mode;
+        string mode = "";
 
-        // Get game mode
-        if (Cur_State == (int)State.FreePlay)
-        {
-            mode = "Survival Time: ";
-        }
-        else
+        if (tutorialStage == true)
         {
             mode = "Tutorial Time: ";
+            timeText.text = mode + timeElapsed + " seconds";
+        }
+        else if (Cur_State == (int)State.FreePlay)
+        {
+            mode = "Survival Time: ";
+            timeText.text = mode + timeElapsed + " seconds";
+        }
+        else if (Cur_State == (int)State.Multiplayer)
+        {
+            mode = "Multiplayer Time: ";
+            timeText.text = mode + timeElapsed + " seconds";
         }
 
-        // Display current time
-        timeText.text = mode + timeElapsed + " seconds";
+
+
 
         // TODO: Adjust when to save decision history to textfile
         if (timeElapsed >= saveCSV)
@@ -736,22 +814,28 @@ public class GameController : MonoBehaviour
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
-    // Displays Kill Streak
+    // Displays Items Left
     //////////////////////////////////////////////////////////////////////////////////
-    private void DisplayStreak()
+    private void DisplayItemsLeft()
     {
-        int streak;
+        arrowsLeftText.text = "Arrows Available: " + arrowsLeft + "\nNukes Available: " + powerupsAvailable;
+    }
 
-        if (Cur_State == (int)State.FreePlay)
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays to Reload
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayFeedback()
+    {
+        string t;
+        if (arrowsLeft <= 0)
         {
-            streak = killStreak;
+            t = "Reload your quiver!";
         }
         else
         {
-            streak = 0;
+            t = "";
         }
-        streakText.text = "Kill Streak: " + streak;
-
+        feedbackText.text = t;
 
     }
 
@@ -812,31 +896,16 @@ public class GameController : MonoBehaviour
             + "\nHeadshot %: " + headshot_pct + "\nZombies Destroyed: " + zombiesDestroyed;
     }
 
-    private void DisplayItemsLeft()
-    {
-        arrowsLeftText.text = "Arrows Available: " + arrowsLeft+ "\nNukes Available: " + powerupsAvailable;
-    }
 
-    private void DisplayFeedback()
-    {
-        string t;
-        if (arrowsLeft <= 0)
-        {
-            t = "Reload your quiver!";
-        }
-        else 
-        {
-            t = "";
-        }
-        feedbackText.text = t;
-
-        
-    }
-
-    void DisplayTutorialText(string s)
+    ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays Tutorial Instructions
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayTutorialText(string s)
     {
         tutorialText.text = s;
     }
+
+
 
 }
 
