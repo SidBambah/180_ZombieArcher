@@ -228,7 +228,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
             // get the rotation before it's changed
             float oldYRotation = transform.eulerAngles.y;
 
-            mouseLook.LookRotation (transform, cam.transform); // COMMENTED FOR INTEGRATION
+
+            //mouseLook.LookRotation (transform, cam.transform); // COMMENTED FOR INTEGRATION
 
             if (m_IsGrounded || advancedSettings.airControl)
             {

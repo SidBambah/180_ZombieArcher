@@ -29,13 +29,15 @@ public class MachineLearning : MonoBehaviour
     private bool activeZombieIncrease;  // Whether to increment number of zombies on scene
     private bool repeatTutorial;        // Whether to repeat the tutorial stage
     private List<string[]> rowData = new List<string[]>(); // Used tor writing csv file
-
+    private string filePath;
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
     //////////////////////////////////////////////////////////////////////////////////
     void Start()
     {
+
+        //filePath = Application.dataPath + "/PlayerData/" + playerName + ".csv";
         // Creating First row of titles manually..
         string[] rowDataTemp = new string[4];
         rowDataTemp[0] = "Iteration";
@@ -301,7 +303,6 @@ public class MachineLearning : MonoBehaviour
             enemManager.IncMaxActiveZombies();
         }
 
-        Debug.Log(playerSkill);
 
         // Record inputs and outputs of decision tree to csv file
         string[] rowDataTemp = new string[4];
@@ -313,6 +314,7 @@ public class MachineLearning : MonoBehaviour
 
         // Increment what decision this was
         iteration += 1;
+        //Save();
 
         // Return whether the player should repeat the tutorial stage
         return repeatTutorial;
@@ -342,9 +344,14 @@ public class MachineLearning : MonoBehaviour
 
 
         string filePath = Application.dataPath + "/PlayerData/" + playerName + ".csv";
-
         StreamWriter outStream = System.IO.File.CreateText(filePath);
         outStream.WriteLine(sb);
         outStream.Close();
+    }
+
+    public void AppendToFile()
+    {
+
+
     }
 }
