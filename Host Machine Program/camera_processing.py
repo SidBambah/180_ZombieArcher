@@ -6,12 +6,19 @@ global imageValue
 imageValue = "Q0"
 global imageCommandNumber
 imageCommandNumber = 0
+global counter
+counter = 0
+global oldimageValue
+oldimageValue = "Q0"
+
 def recognize():
 
     cap = cv2.VideoCapture(0)
     
     while(1):
         global imageValue
+        global oldimageValue
+        global counter
         global imageCommandNumber
         # Take each frame
         _, frame = cap.read()
@@ -68,7 +75,14 @@ def recognize():
                     imageValue = "Q1"
             else:
                 imageValue = "Q0"
-        
+        if oldimageValue == imageValue:
+            counter = counter + 1
+        else:
+            counter = 0
+        oldimageValue = imageValue
+        if counter == 25:
+            counter = 0
+            imageCommandNumber = imageCommandNumber + 1
         #print(len(contours))
         
         # cv2.imshow('frame', frame)
