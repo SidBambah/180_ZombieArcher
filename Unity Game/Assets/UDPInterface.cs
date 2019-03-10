@@ -32,14 +32,14 @@ public class UDPInterface : MonoBehaviour {
     public static bool validQuadrant = false;
 
     // For testing
-    public static bool testing = true;
+    public static bool testing = false;
 
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Private Variables
     //////////////////////////////////////////////////////////////////////////////////
     private float previous_force = 0;
-    private string HOST = "131.179.26.27"; //Must change this each time
+    private string HOST = "131.179.27.201"; //Must change this each time
     private int PORT = 10002;
 	private UdpClient unity_socket;
 	private IPEndPoint ep;

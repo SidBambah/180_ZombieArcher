@@ -104,7 +104,7 @@ public class GameController : MonoBehaviour
         resLoc = ZombieLocation.Near;
 
         // Display statistics
-        DisplayStats();
+        //DisplayStats();
 
     }
 
@@ -233,8 +233,10 @@ public class GameController : MonoBehaviour
 
         if (UDPInterface.speech == "kill" && UDPInterface.validSpeech == true)
             DisplayHit("KILL ZOMBIES");
+        if (UDPInterface.speech == "show" && UDPInterface.validSpeech == true)
+            DisplayHit("SHOW STATS");
 
-        if (UDPInterface.validQuadrant)
+        /*if (UDPInterface.validQuadrant)
         {
             if (UDPInterface.spawnQuadrant == "Q1" || Input.GetKeyDown("u"))
                 DisplayHit("Q1");
@@ -245,7 +247,7 @@ public class GameController : MonoBehaviour
             else if (UDPInterface.spawnQuadrant == "Q4" || Input.GetKeyDown("k"))
                 DisplayHit("Q4");
             Debug.Log("Quadrant " + UDPInterface.spawnQuadrant);
-        }
+        }*/
 
     }
 
@@ -894,6 +896,19 @@ public class GameController : MonoBehaviour
 
         statsText.text = "Statistics for " + ML.playerName + ":\nHits: " + hits + "\nMisses: " + stats[3] + "\nHit %: " + hit_pct + "\nBody Shots: " + stats[5] + "\nHead Shots: " + stats[4]
             + "\nHeadshot %: " + headshot_pct + "\nZombies Destroyed: " + zombiesDestroyed;
+
+
+        Color temp = statsText.color;
+        temp.a = 1;
+        statsText.color = temp;
+        Invoke("DisplayStatsOff", 3f);
+    }
+
+    private void StatsTextOff()
+    {
+        Color temp = statsText.color;
+        temp.a = 0;
+        statsText.color = temp;
     }
 
 

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class LongbowShoot : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class LongbowShoot : MonoBehaviour
     public GameObject flare;
     public Transform arrow;
     public MachineLearning ML;      // ADDED
-
+    public Slider forceSlider;         // Reference to force slider on GUI
     private bool shooting = false;
     private float shootingTimer;
     private float shootingTime;
@@ -34,6 +35,7 @@ public class LongbowShoot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        forceSlider.value = UDPInterface.force * 100f;
 
         if (GameController.arrowsLeft > 0)
         {
@@ -209,7 +211,7 @@ public class LongbowShoot : MonoBehaviour
         if (a.gameObject.GetComponent<ArrowHit>().arrowHit == false)
             ML.missShot(ML.playerName, ML.dbPath);
 
-        tutCont.GetComponent<GameController>().DisplayStats();
+        //tutCont.GetComponent<GameController>().DisplayStats();
 
         //ADDED
         Destroy(flare, 0);
