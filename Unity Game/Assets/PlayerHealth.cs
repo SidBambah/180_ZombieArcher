@@ -9,15 +9,15 @@ using UnityEngine.UI;
 public class PlayerHealth : MonoBehaviour
 {
     // Public variables
-    public int startingHealth;    // Player's starting health
+   //public int startingHealth;    // Player's starting health
     public int currentHealth;           // Player's current health
-    public Slider healthSlider;         // Reference to health slider on GUI
     public Image damageImage;           // Reference to Image on GUI so can change the flashing color
     public AudioClip deathClip;         // Sound to make when player dies
     public float flashSpeed = 5f;       // Indicates how fast for the flash to occur
     public Color flashColor = new Color(1f, 0f, 0f, 0.1f); // Color of the flash
+    public SimpleHealthBar healthBar;
 
-    
+
     // Private variables
     AudioSource playerAudio;        // Sound to play when player takes damage
     bool isDead;                    // Indicates if the player is dead
@@ -28,7 +28,9 @@ public class PlayerHealth : MonoBehaviour
     void Start()
     {
         playerAudio = GetComponent<AudioSource>(); // Get Audio Source attacked to Player
-        currentHealth = startingHealth;            // Initialize current health
+        //currentHealth = startingHealth;            // Initialize current health
+
+
     }
 
     // Update is called once per frame
@@ -57,8 +59,8 @@ public class PlayerHealth : MonoBehaviour
         // Decrement current health
         currentHealth -= amount;
 
-        // Update health slider
-        healthSlider.value = currentHealth;
+
+        healthBar.UpdateBar(currentHealth, 100);
 
         //Play audio for player taking damage
         //playerAudio.Play();

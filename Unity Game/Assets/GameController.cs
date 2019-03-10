@@ -233,8 +233,11 @@ public class GameController : MonoBehaviour
 
         if (UDPInterface.speech == "kill" && UDPInterface.validSpeech == true)
             DisplayHit("KILL ZOMBIES");
-        if (UDPInterface.speech == "show" && UDPInterface.validSpeech == true)
+        if ((UDPInterface.speech == "show" && UDPInterface.validSpeech == true) || Input.GetKeyDown("1"))
+        {
             DisplayHit("SHOW STATS");
+            DisplayStats();
+        }
 
         /*if (UDPInterface.validQuadrant)
         {
@@ -343,9 +346,9 @@ public class GameController : MonoBehaviour
         zombiesLeftText.color = Color.Lerp(zombiesLeftText.color, temp, Time.deltaTime);
 
         // Turn on stats text
-        temp = statsText.color;
+        /*temp = statsText.color;
         temp.a = 1f;
-        statsText.color = Color.Lerp(statsText.color, temp, Time.deltaTime);
+        statsText.color = Color.Lerp(statsText.color, temp, Time.deltaTime);*/
 
         // Turn on time text
         temp = timeText.color;
@@ -901,7 +904,7 @@ public class GameController : MonoBehaviour
         Color temp = statsText.color;
         temp.a = 1;
         statsText.color = temp;
-        Invoke("DisplayStatsOff", 3f);
+        Invoke("StatsTextOff", 4f);
     }
 
     private void StatsTextOff()

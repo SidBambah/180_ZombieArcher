@@ -35,7 +35,30 @@ public class LongbowShoot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        forceSlider.value = UDPInterface.force * 100f;
+        if (!UDPInterface.testing)
+        {
+            forceSlider.value = UDPInterface.force * 100f;
+        }
+        else
+        {
+            if (Input.GetMouseButton(0))
+            {
+                if (forceSlider.value >= 100)
+                {
+                    forceSlider.value = 100;
+                }
+                else 
+                {
+                    forceSlider.value += 1;
+                }
+            }
+            else 
+            {
+                forceSlider.value = 0;
+            }
+        }
+
+
 
         if (GameController.arrowsLeft > 0)
         {

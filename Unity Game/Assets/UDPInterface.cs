@@ -32,7 +32,7 @@ public class UDPInterface : MonoBehaviour {
     public static bool validQuadrant = false;
 
     // For testing
-    public static bool testing = false;
+    public static bool testing = true;
 
 
     ////////////////////////////////////////////////////////////////////////////////// 
