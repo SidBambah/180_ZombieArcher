@@ -75,7 +75,7 @@ public class ArrowHit : MonoBehaviour
                     }
                     arrowHit = true;
                     GameController.arrowHits += 1;
-                    tutCont.GetComponent<GameController>().DisplayStats();
+                    //tutCont.GetComponent<GameController>().DisplayStats();
 
                 }
             }

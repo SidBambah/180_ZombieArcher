@@ -19,6 +19,7 @@ public class LongbowShoot : MonoBehaviour
     public Transform arrow;
     public MachineLearning ML;      // ADDED
     public Slider forceSlider;         // Reference to force slider on GUI
+    public Image forceImage;
     private bool shooting = false;
     private float shootingTimer;
     private float shootingTime;
@@ -43,20 +44,21 @@ public class LongbowShoot : MonoBehaviour
         {
             if (Input.GetMouseButton(0))
             {
-                if (forceSlider.value >= 100)
+                if (forceSlider.value >= 100f)
                 {
-                    forceSlider.value = 100;
+                    forceSlider.value = 100f;
                 }
                 else 
                 {
-                    forceSlider.value += 1;
+                    forceSlider.value += 1f;
                 }
             }
             else 
             {
-                forceSlider.value = 0;
+                forceSlider.value = 0f;
             }
         }
+        forceImage.color = ComputeColor(forceSlider.value);
 
 
 
@@ -72,6 +74,18 @@ public class LongbowShoot : MonoBehaviour
             }
 
         }
+    }
+
+    Color ComputeColor(float val)
+    {
+        Color tmp;
+        tmp.r = 1f;
+        tmp.g = 1f - (val/100f);
+        tmp.b = 0f;
+        tmp.a = 1f;
+       
+        return tmp;
+
     }
 
     void MouseShoot()

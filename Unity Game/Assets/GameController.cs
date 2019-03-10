@@ -38,6 +38,9 @@ public class GameController : MonoBehaviour
     public MachineLearning ML;
     public int maxArrows = 3;
     public static int arrowsLeft = 3;   // Number of arrows
+    public RawImage[] Arrows;
+    public RawImage[] Nukes;
+    
 
     public static int Cur_State;        // Indicates current state of tutorial scene
     public static int arrowHits = 0;    // Number of arrow hits
@@ -67,6 +70,7 @@ public class GameController : MonoBehaviour
     private int killStreakThres = 3;    // Player's kill streak in survival mode
     private int killStreakDefault = 3;  // Default kill streak threshold
     private int powerupsAvailable = 0;  // Number of nukes player has
+    private int maxPowerups = 3;
     private int saveCSV = 60;
     private int numReloads = 0;
     private int numMelee = 0;
@@ -102,6 +106,7 @@ public class GameController : MonoBehaviour
         // Initialize location
         loc = ZombieLocation.Near;
         resLoc = ZombieLocation.Near;
+
 
         // Display statistics
         //DisplayStats();
@@ -179,7 +184,7 @@ public class GameController : MonoBehaviour
             tutorialStage = false;
         }
 
-        // Can skip tutorial stages by pressing 'k' key (for testing)
+        // Can skip tutorial stages by pressing 'g' key (for testing)
         if (tutorialStage == true)
         {
             if (Input.GetKeyDown("g"))
@@ -217,6 +222,8 @@ public class GameController : MonoBehaviour
             numMelee += 1;
             enemManager.Melee();
         }
+
+
 
         // FOR TESTING
         if (UDPInterface.melee)
@@ -605,9 +612,16 @@ public class GameController : MonoBehaviour
         if (killStreak >= killStreakThres)
         {
             // Unlock a nuke and increment threshold
-            powerupsAvailable += 1;
-            killStreakThres += 3;
-            DisplayPowerUpUnlock("You unlocked a nuke!\n Say \"kill\" to use it!");
+            if (powerupsAvailable < maxPowerups)
+            {
+                powerupsAvailable += 1;
+                killStreakThres += 3;
+                DisplayPowerUpUnlock("You unlocked a nuke!\n Say \"Kill Zombies\" to use it!");
+            }
+            else
+            {
+                killStreakThres += 1;
+            }
 
         }
 
@@ -729,10 +743,16 @@ public class GameController : MonoBehaviour
         DisplayTime();
 
         // Display arrows left
-        DisplayItemsLeft();
+        //DisplayItemsLeft();
 
         // Display to reload arrow
         DisplayFeedback();
+
+        // Display arrow textures
+        DisplayArrowUI(Arrows, arrowsLeft);
+
+        // Display nuke textures
+        DisplayArrowUI(Nukes, powerupsAvailable);
 
     }
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -845,6 +865,48 @@ public class GameController : MonoBehaviour
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
+    // Displays arrow textures
+    //////////////////////////////////////////////////////////////////////////////////
+    private void DisplayArrowUI(RawImage[] im, int num)
+    {
+        Color tmp = im[0].color;
+
+        if (num == 0)
+        {
+            tmp.a = 0;
+            for (int k = 0; k < 3; k++)
+                im[k].color = tmp;
+
+        }
+        else if (num == 1)
+        {
+            tmp.a = 1;
+            im[0].color = tmp;
+            tmp.a = 0;
+            im[1].color = tmp;
+            im[2].color = tmp;
+
+
+        
+        }
+        else if (num == 2)
+        {
+            tmp.a = 1;
+            im[0].color = tmp;
+            im[1].color = tmp;
+            tmp.a = 0;
+            im[2].color = tmp;
+        }
+        else if (num == 3)
+        {
+            tmp.a = 1;
+            for (int k = 0; k < 3; k++)
+                im[k].color = tmp;
+        }
+
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////// 
     // Displays Hit Text
     //////////////////////////////////////////////////////////////////////////////////
     public void DisplayHit(string t)
@@ -872,7 +934,9 @@ public class GameController : MonoBehaviour
     {
         nukeText.text = t;
         Color temp = nukeText.color;
-        temp.a = 1;
+        temp.a = 1f;
+        temp.g = 0f;
+        temp.b = 0f;
         nukeText.color = temp;
 
         // Allow hit text to show for 1 second
