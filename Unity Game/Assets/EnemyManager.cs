@@ -256,7 +256,8 @@ public class EnemyManager : MonoBehaviour
                 GameObject a = zombiesAlive[k];
                 if (a.GetComponent<ZombieAttack>().IsPlayerInRange() == true)
                 {
-                    Destroy(zombiesAlive[k], 0);
+                    zombiesAlive[k].GetComponent<ZombieHealth>().Death();
+                    //Destroy(zombiesAlive[k], 0);
                     spotTaken[k] = false;
                     activeZombies -= 1;
                     return;

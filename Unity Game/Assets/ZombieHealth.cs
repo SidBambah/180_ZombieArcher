@@ -21,14 +21,15 @@ public class ZombieHealth : MonoBehaviour {
     public GameObject tutCont;              // Reference to the tutorial controller
     public bool arrowHit = false;          
     public MachineLearning ML;              // Reference to ML script
-    //public AudioClip deathClip;           // TODO: Sound zombie makes when dies
+    public AudioClip hitClip;
+    
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Private Variables
     //////////////////////////////////////////////////////////////////////////////////
-    //AudioSource zombieAudio;            // Audio source for zombie
-    //ParticleSystem hitParticles;        // TODO: Will contain blood
-    //CapsuleCollider capsuleCollider;    // Capsule collider for zombie
+
+    ParticleSystem hitParticles;        //  Will contain blood
+
 
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -36,7 +37,7 @@ public class ZombieHealth : MonoBehaviour {
     //////////////////////////////////////////////////////////////////////////////////
     void Awake () {
         //zombieAudio = GetComponent<AudioSource>();
-        //hitParticles = GetComponentInChildren<ParticleSystem>(); // TODO: Find particle system
+        hitParticles = GetComponentInChildren<ParticleSystem>();
         //capsuleCollider = GetComponent<CapsuleCollider>();         // Get reference to capsule collider
         currentHealth = startingHealth;                            // Initialize current health
         tutCont = GameObject.FindWithTag("GameController");
@@ -46,7 +47,9 @@ public class ZombieHealth : MonoBehaviour {
     ////////////////////////////////////////////////////////////////////////////////// 
     // Update is called once per frame
     //////////////////////////////////////////////////////////////////////////////////
-    void Update () {
+    void Update () 
+    {
+
 	}
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -54,14 +57,14 @@ public class ZombieHealth : MonoBehaviour {
     //////////////////////////////////////////////////////////////////////////////////
     public void ZombieTakeDamage(int amount)
     {
-        // TODO: Play zombie audio when zombie is damaged
-        //zombieAudio.Play();
+  
+        GetComponent<AudioSource>().PlayOneShot(hitClip);
 
         //Decrement zombie health
         currentHealth -= amount;
 
-        // TODO: Display blood
-        //hitParticles.Play();
+  
+        hitParticles.Play();
 
         // If the current health is less than 0, zombie is dead
         if(currentHealth <= 0)
@@ -82,6 +85,7 @@ public class ZombieHealth : MonoBehaviour {
 
         //TODO: Play zombie death audio
         //zombieAudio.Play();
+
 
         // Stop zombie from moving
         GetComponent<ZombieMovement>().enabled = false;

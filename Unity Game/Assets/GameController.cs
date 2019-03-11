@@ -40,7 +40,10 @@ public class GameController : MonoBehaviour
     public static int arrowsLeft = 3;   // Number of arrows
     public RawImage[] Arrows;
     public RawImage[] Nukes;
-    
+    public AudioClip nukeClip;
+    public AudioClip meleeClip;
+    public AudioClip reloadClip;
+    public Demos demos;
 
     public static int Cur_State;        // Indicates current state of tutorial scene
     public static int arrowHits = 0;    // Number of arrow hits
@@ -212,6 +215,7 @@ public class GameController : MonoBehaviour
         // Reload the arrows if the player reloads
         if (UDPInterface.reload || Input.GetKeyDown("r"))
         {
+            GetComponent<AudioSource>().PlayOneShot(reloadClip);
             arrowsLeft = maxArrows;
             numReloads += 1;
         }
@@ -219,6 +223,7 @@ public class GameController : MonoBehaviour
         // Perform melee 
         if (UDPInterface.melee || Input.GetKeyDown("n"))
         {
+            GetComponent<AudioSource>().PlayOneShot(meleeClip);
             numMelee += 1;
             enemManager.Melee();
         }
@@ -630,6 +635,10 @@ public class GameController : MonoBehaviour
         {
             if (powerupsAvailable >= 1)
             {
+
+                // Play sound effect
+                GetComponent<AudioSource>().PlayOneShot(nukeClip);
+
                 // Play animations for the explosions
                 enemManager.BlowUpZombies();
 
@@ -988,6 +997,9 @@ public class GameController : MonoBehaviour
     }
 
 
-
+    public int GetState()
+    {
+        return Cur_State;
+    }
 }
 

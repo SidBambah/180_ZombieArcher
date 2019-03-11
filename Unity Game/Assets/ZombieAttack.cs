@@ -14,6 +14,7 @@ public class ZombieAttack : MonoBehaviour {
     //////////////////////////////////////////////////////////////////////////////////
     private float timeBetweenAttacks = 1f; // Time to wait between attacks for zombie
     private int attackDamage = 5;           // How much damage a zombie deals to the player
+    public AudioClip attackClip;
 
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -49,6 +50,7 @@ public class ZombieAttack : MonoBehaviour {
         if (timer >= timeBetweenAttacks && playerInRange && zombieHealth.currentHealth > 0)
         {
 
+
             Attack();
             GetComponent<Animator>().SetTrigger("Attack");
             zombieMovement.DisableMovement();
@@ -71,6 +73,7 @@ public class ZombieAttack : MonoBehaviour {
         {
             if (other.GetType() == typeof(CapsuleCollider))
             {
+
                 playerInRange = true;
 
             }
@@ -104,6 +107,12 @@ public class ZombieAttack : MonoBehaviour {
         // If the player is still alive, deal damage to the player
         if (playerHealth.currentHealth > 0)
         {
+
+            //GetComponent<AudioSource>().clip = attackClip;
+            //GetComponent<AudioSource>().time = 1f;
+            //GetComponent<AudioSource>().Play();
+            GetComponent<AudioSource>().PlayOneShot(attackClip);
+
             playerHealth.TakeDamage(attackDamage);
         }
     }

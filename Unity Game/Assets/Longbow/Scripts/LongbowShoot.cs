@@ -187,7 +187,7 @@ public class LongbowShoot : MonoBehaviour
         float shootTime = 1 * percent;
 
         //play shootSound
-        GetComponent<AudioSource>().Stop();
+        /*GetComponent<AudioSource>().Stop();
         GetComponent<AudioSource>().time = 0.2f;
         GetComponent<AudioSource>().clip = shootSound;
         if (percent == 0)
@@ -199,7 +199,7 @@ public class LongbowShoot : MonoBehaviour
             //volume of sound will be determined by arrow's power
             GetComponent<AudioSource>().volume = 1 * percent;
         }
-        GetComponent<AudioSource>().Play();
+        GetComponent<AudioSource>().Play();*/
 
         //Play Shoot animation On Mouse Up
         GetComponent<Animation>().Play("Shoot");
@@ -214,6 +214,10 @@ public class LongbowShoot : MonoBehaviour
 
     void InstantiateArrow(float power)
     {
+        GetComponent<AudioSource>().clip = shootSound;
+        GetComponent<AudioSource>().time = 0.2f;
+        GetComponent<AudioSource>().Play();
+
         //Instantiated projectile (arrow)
         arrow = Instantiate(projectile, arrowSpawn.transform.position, transform.rotation) as Transform;
 
