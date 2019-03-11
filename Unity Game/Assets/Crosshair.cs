@@ -13,7 +13,7 @@ public class Crosshair : MonoBehaviour {
     // Public Variables
     //////////////////////////////////////////////////////////////////////////////////
     public Texture2D crosshairImage;
-
+    public GameController gc;
     ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
     //////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,10 @@ public class Crosshair : MonoBehaviour {
     // Update is called once per frame
     //////////////////////////////////////////////////////////////////////////////////
     void Update () {
-		
+		/*if (gc.GetState() > 0)
+        {
+            
+        }*/
 	}
 
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -42,6 +45,9 @@ public class Crosshair : MonoBehaviour {
         //float yMin = (Screen.height - Input.mousePosition.y) - (crosshairImage.height / 2);
 
         // Draw crosshair image
-        GUI.DrawTexture(new Rect(xMin+75, yMin+25, crosshairImage.width, crosshairImage.height), crosshairImage);
+        if (gc.GetState() > 0 && gc.GetState() <= 9)
+        {
+            GUI.DrawTexture(new Rect(xMin + 75, yMin + 25, crosshairImage.width, crosshairImage.height), crosshairImage);
+        }
     }
 }

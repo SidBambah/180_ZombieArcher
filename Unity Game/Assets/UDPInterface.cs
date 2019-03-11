@@ -39,7 +39,7 @@ public class UDPInterface : MonoBehaviour {
     // Private Variables
     //////////////////////////////////////////////////////////////////////////////////
     private float previous_force = 0;
-    private string HOST = "131.179.27.201"; //Must change this each time
+    private string HOST = "131.179.27.231"; //Must change this each time
     private int PORT = 10002;
 	private UdpClient unity_socket;
 	private IPEndPoint ep;
