@@ -80,7 +80,7 @@ def recognize():
         else:
             counter = 0
         oldimageValue = imageValue
-        if counter == 25:
+        if counter == 20:
             counter = 0
             imageCommandNumber = imageCommandNumber + 1
         #print(len(contours))
