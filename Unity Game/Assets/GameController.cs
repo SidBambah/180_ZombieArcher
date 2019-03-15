@@ -44,6 +44,8 @@ public class GameController : MonoBehaviour
     public AudioClip meleeClip;
     public AudioClip reloadClip;
     public Demos demos;
+    public RawImage title;
+    public AudioClip gameOverClip;
 
     public static int Cur_State;        // Indicates current state of tutorial scene
     public static int arrowHits = 0;    // Number of arrow hits
@@ -232,24 +234,24 @@ public class GameController : MonoBehaviour
 
         // FOR TESTING
         if (UDPInterface.melee)
-             DisplayHit("MELEE");
+             DisplayHit("MELEE!");
 
          if (UDPInterface.reload)
-             DisplayHit("RELOAD");
+             DisplayHit("RELOAD!");
 
         if (UDPInterface.speech == "play" && UDPInterface.validSpeech == true)
-            DisplayHit("PLAY");
+            DisplayHit("PLAY!");
 
         if (UDPInterface.speech == "pause" && UDPInterface.validSpeech == true)
-            DisplayHit("PAUSE");
+            DisplayHit("PAUSE!");
 
         if (UDPInterface.speech == "kill" && UDPInterface.validSpeech == true)
-            DisplayHit("KILL ZOMBIES");
+            DisplayHit("KILL ZOMBIES!");
         if ((UDPInterface.speech == "show" && UDPInterface.validSpeech == true) || Input.GetKeyDown("1"))
         {
-            DisplayHit("SHOW STATS");
+            DisplayHit("SHOW STATS!");
             DisplayStats();
-        }
+        } 
 
         /*if (UDPInterface.validQuadrant)
         {
@@ -276,12 +278,22 @@ public class GameController : MonoBehaviour
         {
             start = true;
             startState = (int)State.Stage1;
+
+            // Turn off title raw image;
+            Color tmp = title.color;
+            tmp.a = 0f;
+            title.color = tmp;
             
         }
         if (Input.GetKeyDown("m"))
         {
             start = true;
             startState = (int)State.Multiplayer;
+
+            // Turn off title raw image;
+            Color tmp = title.color;
+            tmp.a = 0f;
+            title.color = tmp;
         }
 
 
@@ -346,6 +358,8 @@ public class GameController : MonoBehaviour
 
         // Turn off start image
         startImage.color = Color.Lerp(startImage.color, Color.clear, Time.deltaTime);
+
+       
 
         // Turn on stage text
         Color temp = stageText.color;
@@ -695,6 +709,9 @@ public class GameController : MonoBehaviour
     {
         // Begin Timer
         restartTimer += Time.deltaTime;
+        //GetComponent<AudioSource>().volume = 0.5f;
+        //GetComponent<AudioSource>().pitch = 0.5f;
+        GetComponent<AudioSource>().PlayOneShot(gameOverClip);
         GameOverAnims();
         // Once restartDelay has elapsed
         if (restartTimer >= restartDelay)
@@ -717,6 +734,13 @@ public class GameController : MonoBehaviour
         temp = startImage.color;
         temp.a = 1f;
         startImage.color = Color.Lerp(startImage.color, temp, Time.deltaTime);
+
+        // Turn off 
+        timeText.color = Color.Lerp(timeText.color, Color.clear, Time.deltaTime);
+
+        // Turn off
+        streakText.color = Color.Lerp(streakText.color, Color.clear, Time.deltaTime);
+        
 
     }
 
@@ -977,7 +1001,7 @@ public class GameController : MonoBehaviour
         Color temp = statsText.color;
         temp.a = 1;
         statsText.color = temp;
-        Invoke("StatsTextOff", 4f);
+        Invoke("StatsTextOff", 7f);
     }
 
     private void StatsTextOff()
