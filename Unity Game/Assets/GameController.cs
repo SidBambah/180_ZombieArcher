@@ -63,7 +63,7 @@ public class GameController : MonoBehaviour
     private float spawnTimer;           // Timer for spawning zombies
     private float spawnTime = 4f;       // Time between zombie spawns in free play mode
     private float startTimer;           // Timer for staying in gamestart state
-    private float startTime = 3f;       // Time to stay in gamestart state, needed to fade screen
+    private float startTime = 3f;       // Time to st y in gamestart state, needed to fade screen
     private float narrativeTimer;       // Timer for staying in narrative function
     private float narrativeTime = 34f;  // Time to stay in narrative function
     private float MLTimer;              // Timer for when to call machine learning function
@@ -76,7 +76,7 @@ public class GameController : MonoBehaviour
     private int killStreakDefault = 3;  // Default kill streak threshold
     private int powerupsAvailable = 0;  // Number of nukes player has
     private int maxPowerups = 3;
-    private int saveCSV = 60;
+    private int saveCSV = 300;
     private int numReloads = 0;
     private int numMelee = 0;
     private int numNukesTut = 0;
@@ -207,9 +207,8 @@ public class GameController : MonoBehaviour
         {
             if (Input.GetKeyDown("h"))
             {
-                enemManager.DestroyAllZombies();
-                refGlobalTime = Time.time;
-                Cur_State = (int)State.Stage1;
+                SetTutStage();
+
             }
         }
 
@@ -253,7 +252,7 @@ public class GameController : MonoBehaviour
             DisplayStats();
         } 
 
-        /*if (UDPInterface.validQuadrant)
+        if (UDPInterface.validQuadrant)
         {
             if (UDPInterface.spawnQuadrant == "Q1" || Input.GetKeyDown("u"))
                 DisplayHit("Q1");
@@ -264,7 +263,7 @@ public class GameController : MonoBehaviour
             else if (UDPInterface.spawnQuadrant == "Q4" || Input.GetKeyDown("k"))
                 DisplayHit("Q4");
             Debug.Log("Quadrant " + UDPInterface.spawnQuadrant);
-        }*/
+        }
 
     }
 
@@ -405,7 +404,7 @@ public class GameController : MonoBehaviour
     // Practice holding the arrow, aiming, and shooting
     void Stage1()
     {
-        DisplayTutorialText("Launch three arrows to advance to the next stage. ");
+        DisplayTutorialText("Launch three arrows to advance.\n\nTip: Launch arrows when zombies are at shooting distance. ");
         if (arrowsLeft <= 0)
             Cur_State = (int)State.Stage2;
 
@@ -413,13 +412,13 @@ public class GameController : MonoBehaviour
     // Practice gestures
     void Stage2()
     {
-        DisplayTutorialText("Perform three reload gestures to advance to the next stage. ");
+        DisplayTutorialText("Perform three reload gestures to advance. \n\nTip: Move bow UP, then DOWN. ");
         if (numReloads >= 3)
             Cur_State = (int)State.Stage3;
     }
     void Stage3()
     {
-        DisplayTutorialText("Perform three melee gestures to advance to the next stage. ");
+        DisplayTutorialText("Perform three melee gestures to advance. \n\nTip: Melee when zombies are attacking (flashing red screen). ");
         if (numMelee >= 3)
             Cur_State = (int)State.Stage4;
 
@@ -427,7 +426,7 @@ public class GameController : MonoBehaviour
     // Practice saying keywords
     void Stage4()
     {
-        DisplayTutorialText("Say the phrase \"kill zombies\" three times to advance to the next stage. ");
+        DisplayTutorialText("Say the phrase \"kill zombies\" three times to advance. \n\nTip: Use nukes when multiple zombies are on the screen. ");
         if ((UDPInterface.speech == "kill" && UDPInterface.validSpeech == true) || Input.GetKeyDown("p"))
             numNukesTut += 1;
 
@@ -621,10 +620,8 @@ public class GameController : MonoBehaviour
         // Check if we should go back to tutorial stage
         if (repeatTutorial == true)
         {
-            enemManager.DestroyAllZombies();
-            refGlobalTime = Time.time;
-            Cur_State = (int)State.Stage1;
-            ZombiesLeft = 9;
+            SetTutStage();
+          
         }
 
         // Check if you unlocked a powerup
@@ -994,8 +991,32 @@ public class GameController : MonoBehaviour
         string hit_pct = (stats[0] * 100f).ToString("F2");
         string headshot_pct = (stats[2] * 100f).ToString("F2");
 
+
+        int skill = ML.playerSkill;
+        string cl = "";
+        if (skill == 0)
+        {
+            cl = "Novice";
+        } 
+        else if (skill == 1)
+        {
+            cl = "Amateur";
+        }
+        else if (skill == 2)
+        {
+            cl = "Advanced";
+        }
+        else if (skill == 3)
+        {
+            cl = "Sharpshooter";
+        }
+
+           
+
+
+
         statsText.text = "Statistics for " + ML.playerName + ":\nHits: " + hits + "\nMisses: " + stats[3] + "\nHit %: " + hit_pct + "\nBody Shots: " + stats[5] + "\nHead Shots: " + stats[4]
-            + "\nHeadshot %: " + headshot_pct + "\nZombies Destroyed: " + zombiesDestroyed;
+            + "\nHeadshot %: " + headshot_pct + "\nZombies Destroyed: " + zombiesDestroyed + "\nSkill Level: " + cl;
 
 
         Color temp = statsText.color;
@@ -1025,5 +1046,19 @@ public class GameController : MonoBehaviour
     {
         return Cur_State;
     }
+
+    private void SetTutStage()
+    {
+        enemManager.DestroyAllZombies();
+        refGlobalTime = Time.time;
+        Cur_State = (int)State.Stage1;
+        ZombiesLeft = 9;
+        arrowsLeft = 3;
+        numMelee = 0;
+        numReloads = 0;
+        numNukesTut = 0;
+
+    }
+    
 }
 

@@ -154,14 +154,18 @@ public class EnemyManager : MonoBehaviour
     }
 
     ////////////////////////////////////////////////////////////////////////////////// 
-    // Respond Previous Zombie (Used for Tutorial Stage)
+    // Respond Previous Zombie (Used for Stage)
     //////////////////////////////////////////////////////////////////////////////////
     public void RespawnPrevious(GameController.ZombieLocation loc)
     {
         // Increment number of zombies left, implements respawning previous zombies
-        GameController.ZombiesLeft += 1;
+        if (GameController.ZombiesLeft < 9)
+        {
+            GameController.ZombiesLeft += 1;
+            DestroyAllZombies();
+        }
 
-        DestroyAllZombies();
+        
 
         // Reset the number of arrows shot to 0
         GameController.tutArrowFires = 0;

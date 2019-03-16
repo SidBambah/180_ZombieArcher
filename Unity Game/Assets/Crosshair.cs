@@ -14,12 +14,13 @@ public class Crosshair : MonoBehaviour {
     //////////////////////////////////////////////////////////////////////////////////
     public Texture2D crosshairImage;
     public GameController gc;
+    public MachineLearning ML;
     ////////////////////////////////////////////////////////////////////////////////// 
     // Use this for initialization
     //////////////////////////////////////////////////////////////////////////////////
     void Start () {
-		
-	}
+        ML = GameObject.FindWithTag("MachineLearning").GetComponent<MachineLearning>();
+    }
 
     ////////////////////////////////////////////////////////////////////////////////// 
     // Update is called once per frame
@@ -45,7 +46,7 @@ public class Crosshair : MonoBehaviour {
         //float yMin = (Screen.height - Input.mousePosition.y) - (crosshairImage.height / 2);
 
         // Draw crosshair image
-        if (gc.GetState() > 0 && gc.GetState() <= 9)
+        if (gc.GetState() > 0 && gc.GetState() <= 9 && !(ML.playerSkill == 3))
         {
             GUI.DrawTexture(new Rect(xMin + 75, yMin + 25, crosshairImage.width, crosshairImage.height), crosshairImage);
         }

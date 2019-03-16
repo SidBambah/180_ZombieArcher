@@ -36,6 +36,17 @@ public class LongbowShoot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        /*if (ML.playerSkill == 3)
+        {
+            forceSlider.enabled = false;
+
+        }
+        else 
+        {
+            forceSlider.enabled = true;
+        }*/
+
         if (!UDPInterface.testing)
         {
             forceSlider.value = UDPInterface.force * 100f;
