@@ -1,7 +1,8 @@
+#!/usr/bin/python
 import socket
 import threading
 import time
-import berryIMU
+import BerryIMU
 import fcntl
 import struct
 
@@ -26,14 +27,14 @@ def socket_create():
 def data_collect():
 	##Sending signals through Pi socket
 	PORT = 10000
-	SERVER_ADDRESS = "131.179.19.48"
+	SERVER_ADDRESS = "131.179.26.41"
 	ADDRESS = (SERVER_ADDRESS, PORT)
 	##Start sequence to establish connection
 	for _ in range(3):
 		sensor_socket.sendto("connect".encode(), ADDRESS)
 	##Send sensor data until stop/start signal received
 	##Keep listening until program closed
-	berryIMU.collect(sensor_socket, ADDRESS, signal)
+	BerryIMU.collect(sensor_socket, ADDRESS, signal)
 		
 def get_signal():
 	##Grabs cue from Unity to start or stop taking sensor data

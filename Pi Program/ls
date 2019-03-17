@@ -9,9 +9,13 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
+#include <termios.h>
+#include <sys/types.h>
 #include "IMU.c"
+#include "quaternion.h"
 
-#define DT 0.025         // [s/loop] loop period in sec
+//#include <termios.h>
+#define DT 0.004         // [s/loop] loop period in sec
 #define AA 0.97         // complementary filter constant
 
 #define A_GAIN 0.0573    // [deg/LSB]
@@ -19,13 +23,14 @@
 #define RAD_TO_DEG 57.29578
 #define M_PI 3.14159265358979323846
 
-#define THRES_A 150 // Raw Acc Noise Floor
-#define THRES_G 80  // Raw Gyr Noise Floor
+#define THRES_A 8000 // Raw Acc Noise Floor
+#define THRES_A_DELTA 80 //Acc Delta Floor
+#define THRES_G 70  // Raw Gyr Noise Floor
 
 // System constants
-#define deltat 0.025f // sampling period in seconds (shown as 25 ms)
-#define gyroMeasError 3.14159265358979f * (0.0f / 180.0f) // gyroscope measurement error in rad/s (shown as 5 deg/s)
-#define gyroMeasDrift 3.14159265358979f * (0.0f / 180.0f) // gyroscope measurement error in rad/s/s (shown as 0.2f deg/s/s)
+#define deltat 0.00413f // sampling period in seconds (shown as 25 ms)
+#define gyroMeasError 3.14159265358979f * (0.00f / 180.0f) // gyroscope measurement error in rad/s (shown as 5 deg/s)
+#define gyroMeasDrift 3.14159265358979f * (0.00f / 180.0f) // gyroscope measurement error in rad/s/s (shown as 0.2f deg/s/s)
 #define beta sqrt(3.0f / 4.0f) * gyroMeasError // compute beta
 #define zeta sqrt(3.0f / 4.0f) * gyroMeasDrift // compute zeta
 // Global system variables
@@ -35,12 +40,12 @@
 ///////////////MODIFY FOR EVERY USE////////////////////
 ///////////////////////////////////////////////////////
 //Mag Calibration Values
-#define magXmax 2021
-#define magYmax 1555
-#define magZmax 960
-#define magXmin -254
-#define magYmin -532
-#define magZmin -1136
+#define magXmax 1594
+#define magYmax 1372
+#define magZmax 800
+#define magXmin -568
+#define magYmin -787
+#define magZmin -1230
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -77,6 +82,9 @@ float InvSqrt(float x); // Used to avoid division by zero in filter
 
 void computeAngles();
 
+void changemode(int dir);
+
+int kbhit(void);
 
 int main(int argc, char *argv[])
 {
@@ -104,23 +112,42 @@ int main(int argc, char *argv[])
   int16_t *cg_z = (int16_t *)&cg_z_full;
 
   //Final ACC and GYR values for each update
-  int a_x = 0;
-  int a_y = 0;
-  int a_z = 0;
+  int a_x[2] = {0};
+  int a_y[2] = {0};
+  int a_z[2] = {0};
 
   int g_x = 0;
   int g_y = 0;
   int g_z = 0;
 
+  double angle_x = 0;
+  double angle_y = 0;
+  double angle_z = 0;
 
   //Values to send to MadgwickAHRS
   float gyr_rate_rad[3] = {0.0f}; // Converted to Radians per second
-  float acc_G[3] = {0.0f}; // Converted to G
+  int acc_norm[3] = {0}; // Orientation Compensated Acceleration
+  float acc_norm_inv[3] = {0.0f}; //Values to subract from non-G-compensated acceleration values
   float scaledMag[3] = {0.0f}; //After hard iron and soft iron calibration
 
   int startInt;
   struct  timeval tvBegin, tvEnd,tvDiff;
+  int print_counter = 0;
 
+  //State machine variables
+  int melee_state = 0;
+  int melee_timer = 0;
+  int gesture_melee = 0;
+
+  int reload_state = 0;
+  int reload_timer = 0;
+  int gesture_reload = 0;
+
+  int reorient_timer = 0;
+  int reorient = 0;
+  int mag_init = 0;
+  int mag_z_ref = 0;
+  int mag_x_ref = 0;
   signal(SIGINT, INThandler);
 
   detectIMU();
@@ -137,7 +164,7 @@ int main(int argc, char *argv[])
   while(1)
     {
       startInt  = mymillis();
-      //Slide values to previous slot;
+      //Slide Raw values to previous slot;
       ca_x_full <<= 16;
       ca_y_full <<= 16;
       ca_z_full <<= 16;
@@ -145,11 +172,21 @@ int main(int argc, char *argv[])
       cg_y_full <<= 16;
       cg_z_full <<= 16;
 
-
+      //Slide filtered Acc Value to prev
+      a_x[1] = a_x[0];
+      a_y[1] = a_y[0];
+      a_z[1] = a_z[0];
+      //printf("%d\t%d\t", a_z[0],a_z[1]);
       //Get Raw Values;
       readACC(accRaw);
       readGYR(gyrRaw);
       readMAG(magRaw);
+
+      //Print Raw ACC values
+      //fprintf(stderr, "%d,%d,%d\t", accRaw[0], accRaw[1], accRaw[2]);
+
+      //Print Raw GYR values
+      //fprintf(stderr,"\t%d,%d,%d\n", gyrRaw[0], gyrRaw[1], gyrRaw[2]);
 
 
       //Subtract offset values;
@@ -161,49 +198,215 @@ int main(int argc, char *argv[])
       cg_z[0] = (int16_t)(gyrRaw[2]-(int)cg[2]);
 
       //Average past values
-      a_x = ((int)ca_x[0] + ca_x[1] + ca_x[2] + ca_x[3]) / 4;
-      a_y = ((int)ca_y[0] + ca_y[1] + ca_y[2] + ca_y[3]) / 4;
-      a_z = ((int)ca_z[0] + ca_z[1] + ca_z[2] + ca_z[3]) / 4;
-      g_x = ((int)cg_x[0] + cg_x[1] + cg_x[2] + cg_x[3]) / 4;
-      g_y = ((int)cg_y[0] + cg_y[1] + cg_y[2] + cg_y[3]) / 4;
-      g_z = ((int)cg_z[0] + cg_z[1] + cg_z[2] + cg_z[3]) / 4;
+      a_x[0] = ((int)ca_x[0] + ca_x[1] + ca_x[2] + ca_x[3]) / 4;
+      a_y[0] = ((int)ca_y[0] + ca_y[1] + ca_y[2] + ca_y[3]) / 4;
+      a_z[0] = ((int)ca_z[0] + ca_z[1] + ca_z[2] + ca_z[3]) / 4;
+      g_x    = ((int)cg_x[0] + cg_x[1] + cg_x[2] + cg_x[3]) / 4;
+      g_y    = ((int)cg_y[0] + cg_y[1] + cg_y[2] + cg_y[3]) / 4;
+      g_z    = ((int)cg_z[0] + cg_z[1] + cg_z[2] + cg_z[3]) / 4;
 
-      //Get rid of small fluctuations
-      a_x = ((a_x>>4)<<4);
-      a_y = ((a_y>>4)<<4);
-      a_z = ((a_z>>4)<<4);
+      //printf("%d\t%d\n", a_z[0],a_z[1]);
+
+      //Further get rid of small fluctuations
+      a_x[0] = abs(a_x[0] - a_x[1]) < THRES_A_DELTA ? a_x[1] + (a_x[0] - a_x[1])/8 : a_x[0];
+      a_y[0] = abs(a_y[0] - a_y[1]) < THRES_A_DELTA ? a_y[1] + (a_y[0] - a_y[1])/8 : a_y[0];
+      a_z[0] = abs(a_z[0] - a_z[1]) < THRES_A_DELTA ? a_z[1] + (a_z[0] - a_z[1])/8 : a_z[0];
+
       //Steady State fix
       g_x = abs(g_x) < THRES_G ? 0 : g_x;
       g_y = abs(g_y) < THRES_G ? 0 : g_y;
-      g_z = abs(g_z) < THRES_G+16 ? 0 : g_z;
+      g_z = abs(g_z) < THRES_G ? 0 : g_z;
+      //Print Gyr Values
+      //fprintf(stderr,"\t%5d,%5d,%5d\n", g_x, g_y, g_z);
       //Apply hard iron calibration
       magRaw[0] -= (magXmin + magXmax) /2 ;
       magRaw[1] -= (magYmin + magYmax) /2 ;
       magRaw[2] -= (magZmin + magZmax) /2 ;
 
+
       //Convert gyr to Rad/s
-      gyr_rate_rad[0] = (float)g_x  * G_GAIN * M_PI / 180.0f;
-      gyr_rate_rad[1] = (float)g_y  * G_GAIN * M_PI / 180.0f;
-      gyr_rate_rad[2] = (float)g_z  * G_GAIN * M_PI / 180.0f;
+      gyr_rate_rad[0] = (double)g_x  * G_GAIN * M_PI / 175.6f;
+      gyr_rate_rad[1] = (double)g_y  * G_GAIN * M_PI / 180.0f;
+      gyr_rate_rad[2] = (double)g_z  * G_GAIN * M_PI / 180.0f;
 
-      //printf("AccX: %5d\tAccY: %5d\tAccZ: %5d\t", a_x, a_y, a_z);
+      //Convert gyr to Degrees/s
+      //gyr_rate_rad[0] = (double)g_x  * G_GAIN;
+      //gyr_rate_rad[1] = (double)g_y  * G_GAIN;
+      //gyr_rate_rad[2] = (double)g_z  * G_GAIN;
+      //angle_x += gyr_rate_rad[0]*DT;
+      //angle_y += gyr_rate_rad[1]*DT;
+      //angle_z += gyr_rate_rad[2]*DT;
+      //printf("%lf,%lf,%lf\n", angle_x, angle_y, angle_z);
+      //Outputs the filtered accelerometer values
+      //fprintf(stderr,"%5d,%5d,%5d\n", a_x[0], a_y[0], a_z[0]);
 
-      //printf("GyrX: %5d\tGyrY: %5d\tGyrZ: %5d\t", g_x, g_y, g_z);
+      //Outputs the filtered gyroscope values
+      //printf("%d,%d,%d\n", g_x, g_y, g_z);
 
-      //filterUpdate(gyr_rate_rad[0], gyr_rate_rad[1], gyr_rate_rad[2], (float)a_x, (float)a_y, (float)a_z);
-      filterUpdateAHRS(gyr_rate_rad[0], gyr_rate_rad[1], gyr_rate_rad[2], (float)a_x, (float)a_y, (float)a_z, (float)magRaw[0], (float)magRaw[1], (float)magRaw[2]);
+      //filterUpdate((float)gyr_rate_rad[0], (float)gyr_rate_rad[1], (float)gyr_rate_rad[2], (float)a_x[0], (float)a_y[0], (float)a_z[0]);
+      //filterUpdate((float)gyr_rate_rad[0], (float)gyr_rate_rad[1], (float)gyr_rate_rad[2], (float)accRaw[0], (float)accRaw[1], (float)accRaw[2]);
+      filterUpdateAHRS((float)gyr_rate_rad[0], (float)gyr_rate_rad[1], (float)gyr_rate_rad[2], 
+                       (float)a_x[0], (float)a_y[0], (float)a_z[0], 
+                       (float)magRaw[0], (float)magRaw[1], (float)magRaw[2]);
       computeAngles();
+      acc_norm[1] = a_y[0] - G_raw*sinf(madAngles[0]);
+      acc_norm[2] = a_z[0] + G_raw*cosf(madAngles[0]);
+      acc_norm[0] = a_x[0] + G_raw*sinf(madAngles[1]);
+      acc_norm[0] = abs(acc_norm[0]) < THRES_A ? 0 : acc_norm[0];
+      acc_norm[1] = abs(acc_norm[1]) < THRES_A ? 0 : acc_norm[1];
+      acc_norm[2] = abs(acc_norm[2]) < THRES_A ? 0 : acc_norm[2];
 
-      //fprintf(stdout,"Roll: %8.3f\t Pitch: %8.3f\t Yaw:Z %8.3f\t", madAngles[0], madAngles[1], madAngles[2]);
-      fprintf(stdout,"%.3f,%.3f,%.3f\n", madAngles[0]*180/M_PI, madAngles[1]*180/M_PI, madAngles[2]*180/M_PI);
+      if (mag_init == 2 &&  magRaw[2] < mag_z_ref + 140 && magRaw[2] > mag_z_ref - 140 &&
+	  magRaw[0] < mag_x_ref + 30 && magRaw[0] > mag_x_ref - 30 && a_y[0] > 16000)
+      {
+	SEq_1 = SEq_1 - 0.001*(SEq_1 - 0.707);
+	SEq_2 = SEq_2 - 0.001*(SEq_2 + 0.707);
+	SEq_3 = SEq_3 - 0.001*SEq_3;
+	SEq_4 = SEq_4 - 0.001*SEq_4;
+	//fprintf(stderr,"\t\t\t\t AUTOREORIENT\n");
+      }
 
-      //Each loop should be at least 20ms.
+      changemode(1);
+      if (kbhit())
+      {
+	  getchar();
+          SEq_1 = 0.707;
+          SEq_2 = -0.707;
+          SEq_3 = SEq_4 = 0;
+	  mag_init = 1;
+      }
+      changemode(0);
+
+
+      
+      if (reorient == 0 && (g_z < -20000 || g_z > 20000))
+      {
+	  //fprintf(stderr,"\t\t\t\tREORIENTATION IS RECALIBRATED\n");
+	  reorient = 1;
+          reorient_timer = 150;
+      }
+      else if (reorient == 1 && reorient_timer == 0)
+      {
+          reorient = 2;
+      }
+      else if (reorient == 2)
+      {
+          SEq_1 = 0.707;
+          SEq_2 = -0.707;
+          SEq_3 = SEq_4 = 0;
+	  reorient = 0;
+	  mag_init = 1;
+	  //fprintf(stderr,"0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-\n");
+      }
+      else if (mag_init == 1)
+      {
+	 // fprintf(stderr, "\t\t\t   NEW REFERENCE TAKEN FOR ORIENTATION\n");
+	  mag_init = 2;
+	  mag_z_ref = magRaw[2];
+	  mag_x_ref = magRaw[0];
+      }
+
+      else if (melee_state == 0 && acc_norm[2] < -15000 && !gesture_melee)
+      {
+		  melee_state = 1;
+		  melee_timer = 100;
+      }
+      else if (melee_state == 1 && acc_norm[2] > 10000 && melee_timer)
+      {
+		  melee_state = 2;
+		  melee_timer = 100;
+      }
+      else if (melee_state == 2 && acc_norm[2] > 10000 && melee_timer && melee_timer < 80)
+      {
+		  gesture_melee = 1;
+		  melee_state = 4;
+		  melee_timer = 100;
+      }
+      else if (melee_state == 4)
+      {
+		 // fprintf(stderr,"==========================================================================================\n==========================================================================================\n");
+		  melee_state = 0;
+		  melee_timer = 0;
+      }
+      else if (reload_state == 0 && acc_norm[1] > 15000 && !gesture_reload)
+      {
+          reload_state = 1;
+          reload_timer = 100;
+      }
+      else if (reload_state == 1 && acc_norm[1] < -8000 && reload_timer)
+      {
+          reload_state = 2;
+          reload_timer = 100;
+      }
+      else if (reload_state == 2 && acc_norm[1] < -8000 && reload_timer && reload_timer < 80)
+      {
+          reload_state = 3;
+          reload_timer = 100;
+      }
+      else if (reload_state == 3 && acc_norm[1] > 8000 && reload_timer)
+      {
+          gesture_reload = 1;
+          reload_state = 4;
+          reload_timer = 100;
+      }
+      else if (reload_state == 4)
+      {
+          //fprintf(stderr,"|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+          reload_state = 0;
+          reload_timer = 0;
+      }
+      if (reorient_timer > 0)
+	  reorient_timer--;
+      //fprintf(stderr,"\t\t\t\t\t\t%d\t%d\n",reorient, reorient_timer);
+      //printf("Gesture State: %d          Timer: %d          Melee: %d\t", gesture_state, gesture_timer, gesture_melee);
+
+      if (melee_timer == 0)
+	  melee_state = 0;
+      else
+	  melee_timer--;
+
+      //printf("Gesture State: %d          Timer: %d          Melee: %d\t", gesture_state, gesture_timer, gesture_melee);
+
+      if (reload_timer == 0)
+          reload_state = 0;
+      else
+          reload_timer--;
+
+      //printf("%7d            %7d            %7d\t", acc_norm[0], acc_norm[1], acc_norm[2]);
+      //printf("\t%5d,%5d,%5d\n", acc_norm[0], acc_norm[1], acc_norm[2]);
+
+      //fprintf(stdout,"Roll: %8.3f\t Pitch: %8.3f\t Yaw: %8.3f\t", madAngles[0]*180/M_PI, madAngles[1]*180/M_PI, madAngles[2]*180/M_PI);
+      if (print_counter == 11)
+      {
+	madAngles[0] = madAngles[0] - 0.05*(madAngles[0] + atan2f(a_y[0],a_z[0]));
+      	fprintf(stdout,"%.3f,%.3f,%.3f,%d,%d\n", madAngles[0]*180/M_PI, madAngles[1]*180/M_PI, madAngles[2]*180/M_PI, gesture_melee, gesture_reload);
+	//fprintf(stderr,"\t\t\t\t %5d     %5d           %5d     %5d          %5d\n",magRaw[2],mag_z_ref,magRaw[0],mag_x_ref,a_y[0]);
+        gesture_melee = 0;
+        gesture_reload = 0;
+	//fprintf(stderr,"%5d,%5d,%5d\n",magRaw[0],magRaw[1],magRaw[2]);
+	//fprintf(stderr,"%5d,%5d,%5d\n",a_x[0],a_y[0],a_z[0]);
+	//fprintf(stderr,"%.3f,%.3f,%.3f\n", madAngles[0]*180/M_PI, madAngles[1]*180/M_PI, madAngles[2]*180/M_PI);
+        //fprintf(stderr,"\t%5d,%5d,%5d\t", acc_norm[0], acc_norm[1], acc_norm[2]);
+	//fprintf(stderr,"\t\tM State: %d   M Timer: %d   M val: %d      R State: %d   R Timer: %d   R val: %d\n", melee_state, melee_timer, gesture_melee, reload_state, reload_timer, gesture_reload);
+        //fprintf(stderr,"%.3f,%.3f,%.3f,%.3f\n", SEq_1, SEq_2, SEq_3, SEq_4);
+        print_counter = 0;
+	if (a_x[0] < 900 && a_x[0] > -900 && a_y[0] < 900 && a_y[0] > -900 && g_x == 0 && g_y == 0 && g_z == 0)
+	{
+	    SEq_1 = 1;
+	    SEq_2 = SEq_3 = SEq_4 = 0;
+        }
+      }
+      print_counter++;
+      //fprintf(stdout,"%.3f,%.3f,%.3f\n", madAngles[0], madAngles[1], madAngles[2]);
+      //fprintf(stdout,"%.3f,%.3f,%.3f,%.3f\n", SEq_1, SEq_2, SEq_3, SEq_4);
+
+      //Each loop should be at most 20ms.
       while(mymillis() - startInt < (DT*1000))
       {
 	  usleep(100);
       }
 
-      //fprintf(stdout,"Loop Time %d\n", mymillis()- startInt);
+      //fprintf(stdout,"Loop %d\n", mymillis()- startInt);
       fflush(stdout);
 
     }
@@ -242,19 +445,20 @@ long long * calibrate_acc()
   ret[0] = ret[1] = ret[2] = ret[3] = 0;
   int accRaw[3];
   int start = mymillis();
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < 1000; i++)
     {
       readACC(accRaw);
       ret[0]+=accRaw[0];
       ret[1]+=accRaw[1];
-      ret[2]+=accRaw[2];
+      ret[3]+=accRaw[2];
     }
   //printf("*********************************    Loop Time %d     ************************\n", mymillis()- start);
-  ret[0] = ret[0]/100;
-  ret[1] = ret[1]/100;
-  ret[2] = (-16384 - (ret[2]/100));
+  ret[0] = ret[0]/1000;
+  ret[1] = ret[1]/1000;
   //ret[3] is the calculated raw value that corresponds to 1 G
-  ret[3] = (int64_t)sqrt( pow(ret[0],2) + pow(ret[1],2) + pow(16384,2));
+  ret[3] = ret[3]/1000;
+  printf("acc calibration values: %lld,%lld,%lld,%lld\n", ret[0],ret[1],ret[2],ret[3]);
+  ret[0] = ret[1] = ret[2] = 0;
   return ret;
 }
 
@@ -267,7 +471,7 @@ long long *calibrate_gyr()
   ret[0] = ret[1] = ret[2] = 0;
   int gyrRaw[3];
   int start = mymillis();
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < 1000; i++)
     {
       readGYR(gyrRaw);
       ret[0]+=gyrRaw[0];
@@ -275,9 +479,13 @@ long long *calibrate_gyr()
       ret[2]+=gyrRaw[2];
     }
   //printf("*********************************    Loop Time %d     ************************\n", mymillis()- start);
-  ret[0] = ret[0]/100;
-  ret[1] = ret[1]/100;
-  ret[2] = ret[2]/100;
+  ret[0] = ret[0]/1000;
+  ret[1] = ret[1]/1000;
+  ret[2] = ret[2]/1000;
+  printf("gyr calibration values: %lld,%lld,%lld\n", ret[0],ret[1],ret[2]);
+  //ret[0] = -234;
+  //ret[1] = -13;
+  //ret[2] = -81;
   return ret;
 }
 
@@ -486,26 +694,65 @@ float InvSqrt(float x)
 
 void computeAngles()
 {
-  madAngles[0] = atan2f(SEq_1*SEq_2 + SEq_3*SEq_4, 0.5f - SEq_2*SEq_2 - SEq_3*SEq_3);
+  float y0 = SEq_1*SEq_2 + SEq_3*SEq_4;
+  float x0 = 0.5f - SEq_2*SEq_2 - SEq_3*SEq_3;
+  float y2 = SEq_2*SEq_3 + SEq_1*SEq_4;
+  float x2 = 0.5f - SEq_3*SEq_3 - SEq_4*SEq_4;
+  /*
+  if (y0 < 0.02 && y0 > -0.02 && x0 < 0.07 && x0 > -0.07 && x0 > 0)
+      x0 = 0.5*expf(-25*x0);
+  else if (y0 < 0.02 && y0 > -0.02 && x0 < 0.07 && x0 > -0.07 && x0 < 0)
+      x0 = -0.5*expf(25*x0);
+  if (y2 < 0.02 && y2 > -0.02 && x2 < 0.07 && x2 > -0.07 && x2 > 0)
+      x2 = 0.5*expf(-25*x2);
+  else if (y2 < 0.02 && y2 > -0.02 && x2 < 0.07 && x2 > -0.07 && x2 < 0)
+      x2 = -0.5*expf(25*x2);
+  */
+  //printf("%f,%f,",x0,x2);
+  madAngles[0] = atan2f(y0, x0);
   madAngles[1] = asinf(-2.0f * (SEq_2*SEq_4 - SEq_1*SEq_3));
-  madAngles[2] = atan2f(SEq_2*SEq_3 + SEq_1*SEq_4, 0.5f - SEq_3*SEq_3 - SEq_4*SEq_4);
+  madAngles[2] = atan2f(y2, x2);
+  /*
+  if ((SEq_1*SEq_1+SEq_4*SEq_4) < (SEq_2*SEq_2+SEq_3*SEq_3))
+      madAngles[1] = -madAngles[1];
+  if (y0 < 0.07 && y0 > -0.07 && x0 < 0.02 && x0 > -0.02 && x0 > 0)
+      madAngles[0] = 1.570796;
+  else if (y0 < 0.07 && y0 > -0.07 && x0 < 0.02 && x0 > -0.02 && x0 < 0)
+      madAngles[0] = -1.570796;
+  if (y2 < 0.07 && y2 > -0.07 && x2 < 0.02 && x2 > -0.02 && x2 > 0)
+      madAngles[2] = 1.570796;
+  else if (y2 < 0.07 && y2 > -0.07 && x2 < 0.02 && x2 > -0.02 && x2 < 0)
+      madAngles[2] = -1.570796;
+  */
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void changemode(int dir)
+{
+  static struct termios oldt, newt;
+ 
+  if ( dir == 1 )
+  {
+    tcgetattr( STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~( ICANON | ECHO );
+    tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+  }
+  else
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
+}
+ 
+int kbhit (void)
+{
+  struct timeval tv;
+  fd_set rdfs;
+ 
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
+ 
+  FD_ZERO(&rdfs);
+  FD_SET (STDIN_FILENO, &rdfs);
+ 
+  select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
+  return FD_ISSET(STDIN_FILENO, &rdfs);
+ 
+}
